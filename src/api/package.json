@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "game-security-api",
   "version": "0.1.0",
   "private": true,
@@ -7,10 +7,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "test": "node health.test.js"
+    "test": "node --test health.test.js"
   },
   "dependencies": {
     "express": "^5.1.0"
-  },
-  "devDependencies": {}
+  }
 }
