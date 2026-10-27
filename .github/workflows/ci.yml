@@ -1,67 +1,36 @@
 
 name: ci
 
-
-
 on:
-
-pull_request:
-
-push:
-
-branches: [ main ]
-
-
+  pull_request:
+  push:
+    branches: [main]
 
 permissions:
-
-contents: read
-
-
+  contents: read
 
 jobs:
+  api-test:
+    name: API test
+    runs-on: ubuntu-latest
 
-api-test:
+    defaults:
+      run:
+        working-directory: src/api
 
-name: API test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-runs-on: ubuntu-latest
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/api/package-lock.json
 
-defaults:
+      - name: Install locked dependencies
+        run: npm ci
 
-run:
-
-working-directory: src/api
-
-steps:
-
-- name: Check out repository
-
-uses: actions/checkout@v4
-
-
-
-- name: Set up Node.js
-
-uses: actions/setup-node@v4
-
-with:
-
-node-version: "22"
-
-cache: npm
-
-cache-dependency-path: src/api/package-lock.json
-
-
-
-- name: Install locked dependencies
-
-run: npm ci
-
-
-
-- name: Run API tests
-
-run: npm test
-
+      - name: Run API tests
+        run: npm test
