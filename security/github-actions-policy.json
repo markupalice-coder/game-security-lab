@@ -1,0 +1,21 @@
+
+{
+
+"enabled": true,
+
+"allowed_actions": "selected",
+
+"sha_pinning_required": false,
+
+"selected_actions": {
+
+"github_owned_allowed": true,
+
+"verified_allowed": false,
+
+"patterns_allowed": []
+
+}
+
+}
+

@@ -44,9 +44,8 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
       - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest
-        with:
-          args: -color
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:latest -color

@@ -11,3 +11,4 @@ The `api-test` job does not need write access, package publishing access, deploy
 
 Future jobs must declare additional permissions only when the job's function requires them.
 
+| Workflow Threat Model | Markdown, STRIDE-style review | Pull request | security/workflow-threat-model.md |
