@@ -1,0 +1,33 @@
+
+name: semgrep-rule-test
+
+on:
+  pull_request:
+  issues:
+
+jobs:
+  unsafe-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unsafe direct PR title usage
+        # ruleid: github-actions-untrusted-context-in-run
+        run: |
+          title="${{ github.event.pull_request.title }}"
+          echo "$title"
+
+  unsafe-issue-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unsafe direct issue title usage
+        # ruleid: github-actions-untrusted-context-in-run
+        run: echo "${{ github.event.issue.title }}"
+
+  safer-env-indirection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Safer PR title usage through env
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        # ok: github-actions-untrusted-context-in-run
+        run: |
+          printf '%s\n' "$PR_TITLE"
