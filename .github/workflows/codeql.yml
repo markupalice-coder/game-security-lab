@@ -1,65 +1,33 @@
 
 name: codeql
 
-
-
 on:
-
-pull_request:
-
-push:
-
-branches: [ main ]
-
-
+  pull_request:
+  push:
+    branches: [main]
 
 permissions:
-
-contents: read
-
-security-events: write
-
-
+  contents: read
+  security-events: write
 
 jobs:
+  analyze:
+    name: Analyze JavaScript and TypeScript
+    runs-on: ubuntu-latest
 
-analyze:
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript]
 
-name: Analyze JavaScript and TypeScript
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-runs-on: ubuntu-latest
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
 
-
-
-strategy:
-
-fail-fast: false
-
-matrix:
-
-language: [ javascript-typescript ]
-
-
-
-steps:
-
-- name: Checkout repository
-
-uses: actions/checkout@v4
-
-
-
-- name: Initialize CodeQL
-
-uses: github/codeql-action/init@v4
-
-with:
-
-languages: ${{ matrix.language }}
-
-
-
-- name: Perform CodeQL analysis
-
-uses: github/codeql-action/analyze@v4
-
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
