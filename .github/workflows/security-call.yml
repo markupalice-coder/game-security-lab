@@ -1,0 +1,41 @@
+
+name: security-call
+
+
+
+on:
+
+pull_request:
+
+push:
+
+branches: [ main ]
+
+workflow_dispatch:
+
+
+
+permissions:
+
+contents: read
+
+
+
+jobs:
+
+api-security-skeleton:
+
+name: Call reusable security skeleton
+
+uses: ./.github/workflows/security-reusable.yml
+
+permissions:
+
+contents: read
+
+with:
+
+target-path: src/api
+
+scan-profile: baseline
+
