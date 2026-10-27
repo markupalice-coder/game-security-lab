@@ -1,0 +1,43 @@
+
+# Lab 7. Add CODEOWNERS for Security-Sensitive Paths
+
+# Training mode uses your GitHub username.
+
+# Production mode should replace these owners with real GitHub organization teams.
+
+
+
+# Protect the ownership file itself.
+
+/.github/CODEOWNERS @markupalice-coder
+
+
+
+# GitHub Actions workflows can expose build logic, permissions, tokens, and deployment behavior.
+
+/.github/workflows/ @markupalice-coder
+
+
+
+# Security evidence, scanner configuration, and incident documents require security review.
+
+/security/ @markupalice-coder
+
+
+
+# Infrastructure definitions can expose cloud resources, networking, and deployment surfaces.
+
+/infra/ @markupalice-coder
+
+
+
+# Policy-as-code rules affect what is allowed or blocked in CI/CD and deployment.
+
+/policies/ @markupalice-coder
+
+
+
+# Backend API changes affect live service behavior and player-facing systems.
+
+/src/api/ @markupalice-coder
+
