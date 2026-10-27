@@ -1,0 +1,4 @@
+.github/workflows/ci.yml:        uses: actions/checkout@v4
+.github/workflows/ci.yml:        uses: actions/setup-node@v4
+.github/workflows/ci.yml:        uses: docker://rhysd/actionlint:latest
+.github/workflows/ci.yml:      - uses: actions/checkout@v4
