@@ -16,7 +16,6 @@ app.listen(port, () => {
 });
 
 
-app.get("/debug", (req, res) => {
   res.json({
     status: "debug-enabled",
     warning: "training-only endpoint for Lab 23"
