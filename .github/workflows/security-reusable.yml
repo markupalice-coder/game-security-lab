@@ -1,0 +1,62 @@
+name: security-reusable
+
+on:
+  workflow_call:
+    inputs:
+      target-path:
+        description: Repository path to inspect.
+        required: true
+        type: string
+      scan-profile:
+        description: Named scan profile.
+        required: false
+        default: baseline
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  security-skeleton:
+    name: Security skeleton for ${{ inputs.target-path }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out caller repository
+        uses: actions/checkout@v4
+
+      - name: Validate requested target path
+        shell: bash
+        env:
+          TARGET_PATH: ${{ inputs.target-path }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${TARGET_PATH}" ]]; then
+            echo "target-path input cannot be empty"
+            exit 1
+          fi
+          if [[ ! -e "${TARGET_PATH}" ]]; then
+            echo "target-path does not exist: ${TARGET_PATH}"
+            exit 1
+          fi
+          echo "Validated target path: ${TARGET_PATH}"
+
+      - name: Create security skeleton summary
+        shell: bash
+        env:
+          TARGET_PATH: ${{ inputs.target-path }}
+          SCAN_PROFILE: ${{ inputs.scan-profile }}
+        run: |
+          set -euo pipefail
+          mkdir -p security/out
+          {
+            echo "# Reusable Security Workflow Summary"
+            echo
+            echo "- Target path: ${TARGET_PATH}"
+            echo "- Scan profile: ${SCAN_PROFILE}"
+            echo "- Status: reusable workflow skeleton executed successfully"
+            echo "- Next scanner layer: CodeQL in Lab 21"
+          } > security/out/security-reusable-summary.md
+          cat security/out/security-reusable-summary.md
