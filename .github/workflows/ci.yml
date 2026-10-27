@@ -13,6 +13,8 @@ jobs:
   api-test:
     name: API test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     defaults:
       run:
@@ -29,8 +31,22 @@ jobs:
           cache: npm
           cache-dependency-path: src/api/package-lock.json
 
-      - name: Install locked dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Run API tests
         run: npm test
+
+  workflow-lint:
+    name: workflow-lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run actionlint
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
