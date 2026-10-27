@@ -1,84 +1,52 @@
+
 name: ci
 
-
-
 on:
-
-pull_request:
-
-push:
-
-branches: [ main ]
-
-
+  pull_request:
+  push:
+    branches: [main]
 
 permissions:
-
-contents: read
-
-
+  contents: read
 
 jobs:
+  api-test:
+    name: API test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-api-test:
+    defaults:
+      run:
+        working-directory: src/api
 
-runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-permissions:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/api/package-lock.json
 
-contents: read
+      - name: Install dependencies
+        run: npm ci
 
-defaults:
+      - name: Run API tests
+        run: npm test
 
-run:
+  workflow-lint:
+    name: workflow-lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-working-directory: src/api
+    steps:
+      - uses: actions/checkout@v4
 
-steps:
-
-- uses: actions/checkout@v4
-
-
-
-- uses: actions/setup-node@v4
-
-with:
-
-node-version: "22"
-
-cache: npm
-
-cache-dependency-path: src/api/package-lock.json
-
-
-
-- run: npm ci
-
-
-
-- run: npm test
-
-
-
-workflow-lint:
-
-runs-on: ubuntu-latest
-
-permissions:
-
-contents: read
-
-steps:
-
-- uses: actions/checkout@v4
-
-
-
-- name: Run actionlint
-
-uses: docker://rhysd/actionlint:latest
-
-with:
-
-args: -color
-
+      - name: Run actionlint
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
