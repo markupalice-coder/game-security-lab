@@ -1,51 +1,71 @@
 
 name: ci
 
+
+
 on:
-  pull_request:
-  push:
-    branches: [main]
+
+pull_request:
+
+push:
+
+branches: [ main ]
+
+
 
 permissions:
-  contents: read
+
+contents: read
+
+
 
 jobs:
-  api-test:
-    name: API test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
-    defaults:
-      run:
-        working-directory: src/api
+workflow-lint:
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+runs-on: ubuntu-latest
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: src/api/package-lock.json
+permissions:
 
-      - name: Install dependencies
-        run: npm ci
+contents: read
 
-      - name: Run API tests
-        run: npm test
+steps:
 
-  workflow-lint:
-    name: workflow-lint
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+- uses: actions/checkout@v4
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+- name: Run actionlint
 
-      - name: Run actionlint
-        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:latest -color
+uses: docker://rhysd/actionlint:latest
+
+
+
+api-test:
+
+runs-on: ubuntu-latest
+
+permissions:
+
+contents: read
+
+steps:
+
+- uses: actions/checkout@v4
+
+
+
+- uses: actions/setup-node@v4
+
+with:
+
+node-version: "22"
+
+cache: npm
+
+cache-dependency-path: src/api/package-lock.json
+
+
+
+- name: Test API through reviewed script
+
+run: ./scripts/test-api.sh
+
