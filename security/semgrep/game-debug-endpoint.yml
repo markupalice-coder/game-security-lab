@@ -1,0 +1,28 @@
+rules:
+  - id: game-debug-endpoint
+    message: Debug endpoint must not be exposed in game services.
+    severity: ERROR
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      category: security
+      technology:
+        - express
+      cwe:
+        - "CWE-489: Active Debug Code"
+      owasp:
+        - "A05:2021 - Security Misconfiguration"
+      confidence: high
+      likelihood: high
+      impact: medium
+
+    pattern-either:
+      - pattern: app.get("/debug", ...)
+      - pattern: app.post("/debug", ...)
+      - pattern: app.use("/debug", ...)
+      - pattern: $APP.get("/debug", ...)
+      - pattern: $APP.post("/debug", ...)
+      - pattern: $APP.use("/debug", ...)
