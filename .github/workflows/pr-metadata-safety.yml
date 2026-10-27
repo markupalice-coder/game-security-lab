@@ -1,59 +1,30 @@
 
 name: pr-metadata-safety
 
-
-
 on:
-
-pull_request:
-
-push:
-
-branches: [ main ]
-
-
+  pull_request:
+  push:
+    branches: [main]
 
 permissions:
-
-contents: read
-
-
+  contents: read
 
 jobs:
+  audit-pr-metadata:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-audit-pr-metadata:
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-runs-on: ubuntu-latest
+      - name: Audit workflow metadata safety
+        run: bash ./scripts/audit-pr-metadata-safety.sh
 
-permissions:
-
-contents: read
-
-
-
-steps:
-
-- name: Check out repository
-
-uses: actions/checkout@v4
-
-
-
-- name: Audit workflow metadata safety
-
-run: ./scripts/audit-pr-metadata-safety.sh
-
-
-
-- name: Demonstrate safe PR metadata handling
-
-if: github.event_name == 'pull_request'
-
-env:
-
-PR_TITLE: ${{ github.event.pull_request.title }}
-
-PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-
-run: ./scripts/render-pr-metadata-summary.sh
-
+      - name: Demonstrate safe PR metadata handling
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: bash ./scripts/render-pr-metadata-summary.sh
