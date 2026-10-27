@@ -1,0 +1,10 @@
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\bin\Release\netstandard2.1\GameClient.deps.json
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\bin\Release\netstandard2.1\GameClient.dll
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\bin\Release\netstandard2.1\GameClient.pdb
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.GeneratedMSBuildEditorConfig.editorconfig
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.AssemblyInfoInputs.cache
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.AssemblyInfo.cs
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.csproj.CoreCompileInputs.cache
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.sourcelink.json
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.dll
+E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\obj\Release\netstandard2.1\GameClient.pdb

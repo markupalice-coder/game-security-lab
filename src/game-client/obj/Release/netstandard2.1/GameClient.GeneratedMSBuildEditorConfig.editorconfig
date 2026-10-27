@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = GameClient
+build_property.ProjectDir = E:\USR-Space\devsecops-gaming\game-security-lab\src\game-client\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
