@@ -7,9 +7,13 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test health.test.js"
+    "test": "node --test health.test.js",
+    "sbom": "cyclonedx-npm --omit dev --output-format JSON --output-file ../../security/api-bom.cdx.json"
   },
   "dependencies": {
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^6.0.1"
   }
 }
