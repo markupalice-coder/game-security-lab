@@ -1,0 +1,14 @@
+
+rules:
+  - id: client-authoritative-grant
+    message: >-
+      Do not trust client-side item grants for authoritative
+      economy decisions. Move final grant approval to a
+      trusted server-side service.
+    severity: WARNING
+    languages:
+      - csharp
+    pattern: |
+      public bool CanGrantItem(...) {
+        ...
+      }
