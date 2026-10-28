@@ -14,6 +14,34 @@ permissions:
   contents: read
 
 jobs:
+  sbom:
+    name: SBOM evidence artifact
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Generate repository SBOM
+        run: ./scripts/generate-sbom.sh
+
+      - name: Scan SBOM with Grype
+        run: ./scripts/scan-sbom.sh
+
+      - name: Upload SBOM evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: repo-sbom-${{ github.sha }}
+          path: security/out/repo-sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
+          include-hidden-files: false
+
   workflow-lint:
     name: workflow-lint
     runs-on: ubuntu-latest
