@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Generate repository SBOM
         run: bash ./scripts/generate-sbom.sh
@@ -33,7 +33,7 @@ jobs:
 
       - name: Upload SBOM evidence artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: repo-sbom-${{ github.sha }}
           path: security/out/repo-sbom.cdx.json
