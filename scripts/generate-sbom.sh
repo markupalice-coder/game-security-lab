@@ -6,8 +6,13 @@ SBOM_OUTPUT="${SBOM_OUTPUT:-security/out/repo-sbom.cdx.json}"
 
 mkdir -p "$(dirname "$SBOM_OUTPUT")"
 
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) HOST_DIR="$(pwd -W)" ;;
+  *) HOST_DIR="$(pwd -P)" ;;
+esac
+
 MSYS_NO_PATHCONV=1 docker run --rm \
-  -v "$(pwd -W):/work" \
+  -v "$HOST_DIR:/work" \
   -w /work \
   "$SYFT_IMAGE" \
   dir:/work \

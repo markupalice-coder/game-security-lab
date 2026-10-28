@@ -26,10 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate repository SBOM
-        run: ./scripts/generate-sbom.sh
+        run: bash ./scripts/generate-sbom.sh
 
       - name: Scan SBOM with Grype
-        run: ./scripts/scan-sbom.sh
+        run: bash ./scripts/scan-sbom.sh
 
       - name: Upload SBOM evidence artifact
         if: always()
