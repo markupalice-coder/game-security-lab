@@ -1,0 +1,4 @@
+title = "game-security-lab Gitleaks Configuration"
+
+[extend]
+useDefault = true
