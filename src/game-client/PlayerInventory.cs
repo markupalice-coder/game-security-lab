@@ -1,29 +1,12 @@
 
 using System;
 
-
-
 public sealed class PlayerInventory
-
 {
-
-public bool CanGrantItem(string itemId, string role)
-
-{
-
-if (string.IsNullOrWhiteSpace(itemId))
-
-{
-
-return false;
-
+    // Validates only the client request input.
+    // This does not authorize an item grant.
+    public bool CanSubmitItemRequest(string itemId)
+    {
+        return !string.IsNullOrWhiteSpace(itemId);
+    }
 }
-
-
-
-return string.Equals(role, "server", StringComparison.Ordinal);
-
-}
-
-}
-
