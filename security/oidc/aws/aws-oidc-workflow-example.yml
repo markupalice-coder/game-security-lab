@@ -1,0 +1,23 @@
+name: aws-oidc-deploy-example
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  aws-identity-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::AWS_ACCOUNT_ID:role/game-security-lab-deploy
+          role-session-name: game-security-lab-oidc
+
+      - name: Confirm caller identity
+        run: aws sts get-caller-identity
