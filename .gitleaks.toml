@@ -1,31 +1,20 @@
 
 title = "Game Security Lab Gitleaks Configuration"
 
-
-
 [extend]
-
 useDefault = true
 
-
-
 [[allowlists]]
-
 description = "Training-only fake secret fixture from Lab 33. Do not use for real credentials."
 
 condition = "AND"
 
 paths = [
-
-'''^security/fake-secret-test\.txt$'''
-
+  '''^security/fake-secret-test\.txt$'''
 ]
 
 regexTarget = "line"
 
 regexes = [
-
-'''AWS_SECRET_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE'''
-
+  '''AWS_SECRET_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE'''
 ]
-
