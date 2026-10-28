@@ -1,0 +1,113 @@
+name: Security Risk Acceptance
+
+description: Request a time-bound exception for a SAST finding.
+
+title: "[Risk Acceptance]: "
+
+labels:
+  - risk-accepted
+  - security-triage
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form only when a SAST finding cannot be fixed before a required milestone.
+
+        A risk acceptance is not a permanent bypass. It must have an owner, a compensating control, and an expiry date.
+
+  - type: input
+    id: finding
+    attributes:
+      label: Finding
+      description: Paste the Semgrep rule ID, CodeQL alert link, SARIF finding reference, or custom SAST rule name.
+      placeholder: "Example: semgrep.game-debug-endpoint or CodeQL alert URL"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scanner
+    attributes:
+      label: Scanner
+      description: Select the scanner that produced the finding.
+      options:
+        - Semgrep
+        - CodeQL
+        - Custom SAST Rule
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Select the severity assigned by the scanner or security reviewer.
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Informational
+    validations:
+      required: true
+
+  - type: textarea
+    id: business_reason
+    attributes:
+      label: Business Reason
+      description: Explain why the team cannot fix this finding before the current release or milestone.
+      placeholder: "Example: The affected code path is disabled for production and the fix requires gameplay regression testing scheduled for the next sprint."
+    validations:
+      required: true
+
+  - type: textarea
+    id: compensating_control
+    attributes:
+      label: Compensating Control
+      description: Describe the temporary control that reduces the risk until the finding is fixed.
+      placeholder: "Example: Endpoint is blocked by route configuration, production feature flag is disabled, and access logs are monitored daily."
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: Name the person or team accountable for fixing or re-reviewing this risk.
+      placeholder: "@backend-team or @security-team"
+    validations:
+      required: true
+
+  - type: input
+    id: expiry_date
+    attributes:
+      label: Expiry Date
+      description: Enter the date when this acceptance must be reviewed or closed. Use YYYY-MM-DD.
+      placeholder: "2026-12-31"
+    validations:
+      required: true
+
+  - type: textarea
+    id: review_evidence
+    attributes:
+      label: Review Evidence
+      description: Link to the pull request, SAST run, SARIF upload, security review, test result, or release ticket.
+      placeholder: "Example: PR URL, Actions run URL, Semgrep output, CodeQL alert, or reviewer approval."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Required Confirmations
+      description: Confirm that this exception is intentional, temporary, and visible.
+      options:
+        - label: I confirm this is not a secret leak, active exploit, or critical production exposure.
+          required: true
+        - label: I confirm this risk has an owner.
+          required: true
+        - label: I confirm this risk has an expiry date.
+          required: true
+        - label: I confirm a compensating control is documented.
+          required: true
