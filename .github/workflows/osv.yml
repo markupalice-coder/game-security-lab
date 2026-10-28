@@ -1,0 +1,32 @@
+name: osv
+
+on:
+  pull_request:
+    paths:
+      - "src/api/package.json"
+      - "src/api/package-lock.json"
+      - ".github/workflows/osv.yml"
+
+  push:
+    branches: [main]
+    paths:
+      - "src/api/package.json"
+      - "src/api/package-lock.json"
+      - ".github/workflows/osv.yml"
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  dependency-vulnerability-scan:
+    name: dependency-vulnerability-scan
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    with:
+      scan-args: |-
+        --lockfile=src/api/package-lock.json
