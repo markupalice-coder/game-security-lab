@@ -1,0 +1,23 @@
+name: oidc-identity-preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  inspect-oidc-readiness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Confirm OIDC request channel exists without printing token
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
+
+          echo "OIDC request channel is available; token value was not printed."
