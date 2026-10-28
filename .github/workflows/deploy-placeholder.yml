@@ -1,0 +1,45 @@
+
+name: deploy-placeholder
+
+
+
+on:
+
+workflow_dispatch:
+
+
+
+permissions:
+
+contents: read
+
+
+
+jobs:
+
+deploy:
+
+name: Protected production deployment placeholder
+
+runs-on: ubuntu-latest
+
+environment: production
+
+permissions:
+
+contents: read
+
+id-token: write
+
+steps:
+
+- name: Confirm protected deployment gate
+
+run: echo "Production approval passed. A real deployment would request short-lived credentials here."
+
+
+
+- name: Confirm no real deployment occurred
+
+run: echo "No cloud resources, player services, signing keys, or production systems were changed."
+
