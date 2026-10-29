@@ -1,0 +1,4 @@
+5a8738e63b5b053a751930a5c0e9c1c82a93255decd5a210bdfe487069cb0f5b  security/out/game-api.spdx.json
+c1de645479396efcfdf01ec807e26356780db25b6f68ddc51def1738cd254c6d  src/api/Dockerfile
+ecc4c8dcde16c6a3eb1b629598c483e3e7e026e8ffda05cbaccbd4b6790d5840  security/out/release-manifest.json
+53787c06eb1739a4fa782545a9d5880fe6ac3ce4d706d8ec186a1ef9ff6d88be  security/out/release-manifest.env

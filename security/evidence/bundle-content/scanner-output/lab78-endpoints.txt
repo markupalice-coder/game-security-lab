@@ -1,0 +1,2 @@
+NAME       ENDPOINTS                         AGE
+game-api   10.244.0.7:3000,10.244.0.8:3000   82s

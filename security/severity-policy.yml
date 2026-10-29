@@ -1,4 +1,6 @@
 
+version: 1
+
 severity_policy:
   blocking:
     - critical
@@ -6,6 +8,49 @@ severity_policy:
   warning:
     - medium
     - low
+  informational:
+    - info
+    - unknown
+
+severity_mapping:
+  CRITICAL: critical
+  HIGH: high
+  MEDIUM: medium
+  LOW: low
+  UNKNOWN: unknown
+
+domain_rules:
+  secrets:
+    rule: "block_all_verified"
+    reason: "A verified credential can expose cloud accounts, signing keys, build systems, or player data."
+  containers:
+    rule: "block_high_runtime_reachable"
+    reason: "Container findings matter most when they exist in runtime packages or reachable service paths."
+  dependencies:
+    rule: "block_high_with_fix"
+    reason: "Dependency gates should prioritize severe findings that have a safe upgrade path."
+  iac:
+    rule: "block_high_external_exposure"
+    reason: "Infrastructure findings should block when they expose public access, privileged identity, or sensitive storage."
+  sast:
+    rule: "block_high_confidence_high_impact"
+    reason: "Static analysis gates should balance impact, exploitability, and false-positive risk."
+
+exception_requirements:
+  required_fields:
+    - finding_id
+    - scanner
+    - normalized_severity
+    - business_reason
+    - compensating_control
+    - owner
+    - expiry_date
+  maximum_duration_days: 30
+
+developer_message:
+  block: "Fix before merge or create a time-bound risk acceptance issue."
+  warn: "Review before merge and link follow-up work if needed."
+  info: "Recorded for evidence; no immediate action required."
 
 rollout:
   new_scanner_mode: warn_only_first_two_weeks

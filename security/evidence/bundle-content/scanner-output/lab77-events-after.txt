@@ -1,0 +1,18 @@
+LAST SEEN   TYPE      REASON                    OBJECT                           MESSAGE
+22m         Normal    Starting                  node/game-lab-control-plane      
+22m         Normal    Starting                  node/game-lab-control-plane      Starting kubelet.
+22m         Normal    NodeHasSufficientPID      node/game-lab-control-plane      Node game-lab-control-plane status is now: NodeHasSufficientPID
+22m         Normal    NodeHasNoDiskPressure     node/game-lab-control-plane      Node game-lab-control-plane status is now: NodeHasNoDiskPressure
+22m         Normal    NodeHasSufficientMemory   node/game-lab-control-plane      Node game-lab-control-plane status is now: NodeHasSufficientMemory
+22m         Normal    NodeAllocatableEnforced   node/game-lab-control-plane      Updated Node Allocatable limit across pods
+22m         Normal    RegisteredNode            node/game-lab-control-plane      Node game-lab-control-plane event: Registered Node game-lab-control-plane in Controller
+21m         Normal    NodeReady                 node/game-lab-control-plane      Node game-lab-control-plane status is now: NodeReady
+7m57s       Normal    ScalingReplicaSet         deployment/game-api              Scaled up replica set game-api-7ccd8f4fbf from 0 to 2
+7m57s       Normal    Scheduled                 pod/game-api-7ccd8f4fbf-9d8gm    Successfully assigned default/game-api-7ccd8f4fbf-9d8gm to game-lab-control-plane
+7m57s       Normal    SuccessfulCreate          replicaset/game-api-7ccd8f4fbf   Created pod: game-api-7ccd8f4fbf-glbnt
+7m57s       Normal    SuccessfulCreate          replicaset/game-api-7ccd8f4fbf   Created pod: game-api-7ccd8f4fbf-9d8gm
+7m57s       Normal    Scheduled                 pod/game-api-7ccd8f4fbf-glbnt    Successfully assigned default/game-api-7ccd8f4fbf-glbnt to game-lab-control-plane
+2m53s       Warning   Failed                    pod/game-api-7ccd8f4fbf-glbnt    Error: container has runAsNonRoot and image has non-numeric user (node), cannot verify user is non-root (pod: "game-api-7ccd8f4fbf-glbnt_default(5012ad58-706b-4b1f-84a2-a93e8ff6e04f)", container: api)
+2m53s       Normal    Pulled                    pod/game-api-7ccd8f4fbf-glbnt    Container image "game-api:local" already present on machine and can be accessed by the pod
+2m44s       Warning   Failed                    pod/game-api-7ccd8f4fbf-9d8gm    Error: container has runAsNonRoot and image has non-numeric user (node), cannot verify user is non-root (pod: "game-api-7ccd8f4fbf-9d8gm_default(84dfd9bb-de8e-4102-be29-79828291d3d3)", container: api)
+2m44s       Normal    Pulled                    pod/game-api-7ccd8f4fbf-9d8gm    Container image "game-api:local" already present on machine and can be accessed by the pod

@@ -1,0 +1,7 @@
+Scanning SBOM: security/out/repo-sbom.cdx.json
+Failure threshold: high
+Using persistent Grype database cache
+No vulnerabilities found
+Table report: security/out/grype-sbom-report.txt
+JSON report: security/out/grype-sbom-report.json
+SBOM vulnerability scan passed
