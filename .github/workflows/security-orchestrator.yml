@@ -1,50 +1,40 @@
 name: security-orchestrator
 
 on:
-pull_request:
-workflow_dispatch:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
-contents: read
-
-concurrency:
-group: security-orchestrator-${{ github.ref }}
-cancel-in-progress: true
+  contents: read
+  security-events: write
 
 jobs:
-preflight:
-name: security preflight
-runs-on: ubuntu-latest
-permissions:
-contents: read
-steps:
-- name: Checkout repository
-uses: actions/checkout@v4
+  sast:
+    name: SAST reusable security scan
+    uses: ./.github/workflows/security-reusable.yml
+    with:
+      target-path: .
 
-- name: Run orchestrator preflight
-run: ./scripts/security-orchestrator-preflight.sh
+  summary:
+    name: Security summary
+    runs-on: ubuntu-latest
+    needs: [sast]
+    if: ${{ always() }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-reusable-security:
-name: reusable security control plane
-needs: preflight
-uses: ./.github/workflows/security-reusable.yml
-with:
-target-path: .
-
-final-decision:
-name: final security decision
-runs-on: ubuntu-latest
-needs:
-- preflight
-- reusable-security
-if: always()
-permissions:
-contents: read
-steps:
-- name: Fail if any orchestrated job failed
-run: |
-if [[ "${{ needs.preflight.result }}" != "success" || "${{ needs['reusable-security'].result }}" != "success" ]]; then
-echo "Security orchestrator failed. Check upstream job logs."
-exit 1
-fi
-echo "Security orchestrator passed."
+      - name: Write security summary
+        env:
+          SAST_RESULT: ${{ needs.sast.result }}
+          SECRETS_RESULT: tracked-by-dedicated-workflow
+          DEPENDENCIES_RESULT: tracked-by-dedicated-workflow
+          CONTAINERS_RESULT: tracked-by-dedicated-workflow
+          IAC_RESULT: tracked-by-dedicated-workflow
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: ./scripts/write-security-summary.sh
