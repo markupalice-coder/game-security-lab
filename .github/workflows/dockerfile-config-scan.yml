@@ -1,0 +1,45 @@
+name: dockerfile-config-scan
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  trivy-config:
+    name: Scan Dockerfile configuration with Trivy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run Dockerfile misconfiguration scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: src/api
+          hide-progress: true
+          format: sarif
+          output: trivy-dockerfile-config.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: ${{ always() && hashFiles('trivy-dockerfile-config.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: trivy-dockerfile-config.sarif
+          category: trivy-dockerfile-config
+
+      - name: Upload SARIF as workflow artifact
+        if: ${{ always() && hashFiles('trivy-dockerfile-config.sarif') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: trivy-dockerfile-config-sarif
+          path: trivy-dockerfile-config.sarif
+          retention-days: 30

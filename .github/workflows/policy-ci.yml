@@ -1,0 +1,37 @@
+name: policy-ci
+
+on:
+  pull_request:
+    paths:
+      - "policies/**"
+      - "scripts/conftest*.sh"
+      - ".github/workflows/policy-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "policies/**"
+      - "scripts/conftest*.sh"
+      - ".github/workflows/policy-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: conftest-policy-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run compliant policy gate
+        run: ./scripts/conftest.sh
+
+      - name: Run negative control
+        run: ./scripts/conftest-negative-check.sh

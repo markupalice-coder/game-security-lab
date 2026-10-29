@@ -1,0 +1,43 @@
+name: cosign-keyless-design
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  oidc-readiness:
+    name: Validate Cosign and OIDC readiness
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v4.0.0
+
+      - name: Confirm Cosign CLI
+        run: cosign version
+
+      - name: Audit OIDC claims safely
+        uses: actions/github-script@v8
+        id: oidc
+        with:
+          script: |
+            const token = await core.getIDToken('sigstore');
+            const payload = token.split('.')[1];
+            const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+
+            core.notice(`issuer=${decoded.iss}`);
+            core.notice(`subject=${decoded.sub}`);
+            core.notice(`audience=${decoded.aud}`);
+
+      - name: Explain Lab 58 boundary
+        run: |
+          echo "Lab 58 validates the keyless signing identity path."
+          echo "Full image signing requires a pushed OCI image and digest discipline in later labs."
