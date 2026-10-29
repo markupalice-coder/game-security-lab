@@ -1,9 +1,11 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: game-api
   labels:
     app: game-api
+
 spec:
   replicas: 1
   selector:
@@ -40,32 +42,8 @@ spec:
             capabilities:
               drop:
                 - ALL
+            readOnlyRootFilesystem: true
 
           volumeMounts:
             - name: tmp
               mountPath: /tmp
-
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: game-api
-  labels:
-    app: game-api
-spec:
-  type: ClusterIP
-  selector:
-    app: game-api
-  ports:
-    - name: http
-      port: 3000
-      targetPort: 3000
-      protocol: TCP
