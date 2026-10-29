@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-api-fail
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: game-api-fail
+  template:
+    metadata:
+      labels:
+        app: game-api-fail
+    spec:
+      containers:
+        - name: api
+          image: game-api:local
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 3000
