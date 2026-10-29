@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,6 +31,8 @@ spec:
       containers:
         - name: api
           image: game-api:local
+          imagePullPolicy: IfNotPresent
+
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
