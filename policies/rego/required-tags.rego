@@ -1,4 +1,7 @@
+
 package gaming.tags
+
+import rego.v1
 
 deny contains msg if {
     input.resource_type == "service"
