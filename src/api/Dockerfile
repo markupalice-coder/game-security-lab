@@ -1,3 +1,4 @@
+
 # syntax=docker/dockerfile:1
 
 # Stage 1: Install production dependencies
@@ -8,7 +9,6 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm ci --omit=dev && npm cache clean --force
-
 
 # Stage 2: Production runtime
 FROM node:22-bookworm-slim AS runtime

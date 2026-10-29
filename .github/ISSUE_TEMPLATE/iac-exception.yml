@@ -1,0 +1,135 @@
+name: IaC Security Exception
+description: Request a temporary exception for an Infrastructure-as-Code security or policy finding.
+title: "[IaC Exception]: "
+labels: ["iac-exception", "risk-accepted", "security-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form only for temporary Infrastructure-as-Code exceptions.
+        Do not use this form to silently bypass security controls.
+        Every exception must have an owner, approver, compensating control, and expiry date.
+
+  - type: dropdown
+    id: policy_tool
+    attributes:
+      label: Policy tool
+      description: Which tool or process produced the finding?
+      options:
+        - Checkov
+        - Conftest / OPA
+        - Trivy config
+        - Manual security review
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: policy_id
+    attributes:
+      label: Policy or rule ID
+      description: Enter the exact policy ID, rule name, or control reference.
+      placeholder: "Example: CKV_AWS_20, gaming.tags.deny, K8S_RESOURCE_LIMITS"
+    validations:
+      required: true
+
+  - type: input
+    id: affected_resource
+    attributes:
+      label: Affected resource
+      description: Enter the exact file, module, manifest, or cloud resource.
+      placeholder: "Example: infra/opentofu/main.tf or deploy/k8s/api.yaml"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Which environment is affected?
+      options:
+        - development
+        - staging
+        - production
+        - shared-platform
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Select the highest realistic severity of the finding.
+      options:
+        - low
+        - medium
+        - high
+        - critical
+    validations:
+      required: true
+
+  - type: textarea
+    id: business_reason
+    attributes:
+      label: Business or technical reason
+      description: Explain why this exception is needed now instead of fixing the finding immediately.
+      placeholder: "Example: The production telemetry service requires a temporary network rule during migration."
+    validations:
+      required: true
+
+  - type: textarea
+    id: compensating_control
+    attributes:
+      label: Compensating control
+      description: Explain what reduces the risk while the exception exists.
+      placeholder: "Example: Access is limited to VPN CIDR, logs are monitored daily, and the rule expires after migration."
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Remediation owner
+      description: Name the person or team responsible for fixing this before expiry.
+      placeholder: "Example: Platform Team / @username"
+    validations:
+      required: true
+
+  - type: input
+    id: approver
+    attributes:
+      label: Risk approver
+      description: Name the person authorized to accept this risk.
+      placeholder: "Example: Security Lead / @username"
+    validations:
+      required: true
+
+  - type: input
+    id: expiry_date
+    attributes:
+      label: Expiry date
+      description: Use YYYY-MM-DD format. Expired exceptions must be fixed or re-approved.
+      placeholder: "2026-12-01"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence links
+      description: Link the scanner output, pull request, control-register entry, architecture decision, or related issue.
+      placeholder: "Example: PR #42, Actions run URL, security/control-register.md#iac-mapping"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Confirm that this is a controlled, temporary exception.
+      options:
+        - label: I confirm this exception has an owner, approver, compensating control, and expiry date.
+          required: true
+        - label: I confirm this exception will not be used to hide or permanently ignore a security control.
+          required: true
