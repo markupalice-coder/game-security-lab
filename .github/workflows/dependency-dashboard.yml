@@ -1,0 +1,91 @@
+
+name: dependency-dashboard
+
+
+
+on:
+
+pull_request:
+
+push:
+
+branches: [ main ]
+
+workflow_dispatch:
+
+
+
+permissions:
+
+contents: read
+
+
+
+jobs:
+
+dashboard:
+
+runs-on: ubuntu-latest
+
+
+
+steps:
+
+- name: Checkout repository
+
+uses: actions/checkout@v6
+
+
+
+- name: Set up Node.js
+
+uses: actions/setup-node@v4
+
+with:
+
+node-version: "22"
+
+cache: npm
+
+cache-dependency-path: src/api/package-lock.json
+
+
+
+- name: Install API dependencies
+
+working-directory: src/api
+
+run: npm ci
+
+
+
+- name: Generate dependency risk dashboard
+
+run: ./scripts/dependency-dashboard.sh
+
+
+
+- name: Add dashboard to GitHub Actions summary
+
+run: cat security/out/dependency-dashboard.md >> "$GITHUB_STEP_SUMMARY"
+
+
+
+- name: Upload dependency risk evidence
+
+uses: actions/upload-artifact@v7
+
+with:
+
+name: dependency-risk-dashboard
+
+path: |
+
+security/out/dependency-dashboard.md
+
+security/out/*.log
+
+security/out/repo-sbom.cdx.json
+
+retention-days: 14
+
