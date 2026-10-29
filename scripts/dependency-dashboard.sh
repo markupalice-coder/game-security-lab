@@ -127,15 +127,11 @@ RELEASE_DECISION="Needs security review before release"
 
 
 
-if [ "$SBOM_STATUS" = "PASS" ] \
-
-&& [ "$GRYPE_STATUS" = "PASS" ] \
-
-&& [ "$NPM_AUDIT_STATUS" = "PASS" ] \
-
-&& [ "$OSV_WORKFLOW" = "configured" ] \
-
-&& [ "$DEPENDENCY_REVIEW_WORKFLOW" = "configured" ]; then
+if [[ "$SBOM_STATUS" == "PASS" &&
+      "$GRYPE_STATUS" == "PASS" &&
+      "$NPM_AUDIT_STATUS" == "PASS" &&
+      "$OSV_WORKFLOW" == "configured" &&
+      "$DEPENDENCY_REVIEW_WORKFLOW" == "configured" ]]; then
 
 RELEASE_DECISION="Dependency evidence is ready for release review"
 
