@@ -1,11 +1,9 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: game-api
   labels:
     app: game-api
-
 spec:
   replicas: 2
   selector:
@@ -23,27 +21,22 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
-
       volumes:
         - name: tmp
           emptyDir: {}
-
       containers:
         - name: api
           image: game-api:local
           imagePullPolicy: IfNotPresent
-
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
-
           volumeMounts:
             - name: tmp
               mountPath: /tmp
-
           resources:
             requests:
               cpu: 100m
@@ -51,9 +44,9 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-
           ports:
             - containerPort: 3000
+              protocol: TCP
 ---
 apiVersion: v1
 kind: Service
