@@ -1,96 +1,88 @@
-
 name: security-orchestrator
 
 on:
   pull_request:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
   contents: read
+  artifact-metadata: write
 
 concurrency:
-  group: security-orchestrator-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   preflight:
-    name: Preflight validation
+    name: Security preflight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install YAML validator
-        run: python -m pip install PyYAML
-
-      - name: Validate Kubernetes manifest
+      - name: Check repository structure
+        shell: bash
         run: |
-          python - <<'PY'
-          import yaml
+          test -d security
+          test -d scripts
 
-          with open("deploy/k8s/api.yaml", encoding="utf-8") as f:
-              documents = list(yaml.safe_load_all(f))
-
-          documents = [doc for doc in documents if doc is not None]
-
-          if not documents:
-              raise SystemExit("Kubernetes manifest is empty")
-
-          for document in documents:
-              if not isinstance(document, dict):
-                  raise SystemExit("Invalid Kubernetes YAML document")
-
-          print(f"Validated {len(documents)} YAML document(s).")
-          PY
+  sast:
+    name: Run reusable security scan
+    uses: ./.github/workflows/security-reusable.yml
+    with:
+      target-path: .
 
   severity-policy:
-    name: Severity policy and scanner rollout
+    name: Validate severity policy
     runs-on: ubuntu-latest
-    needs: preflight
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Validate severity policy
+      - name: Validate severity policy and rollout settings
+        shell: bash
         run: |
-          python -m pip install PyYAML
           python - <<'PY'
-          import yaml
+          from pathlib import Path
+          import sys
 
-          path = "security/severity-policy.yml"
+          policy_path = Path("security/severity-policy.yml")
+          if not policy_path.exists():
+              raise SystemExit("Missing security/severity-policy.yml")
 
-          with open(path, encoding="utf-8") as f:
-              policy = yaml.safe_load(f) or {}
+          try:
+              import yaml
+          except ImportError:
+              raise SystemExit("PyYAML is required to validate the severity policy")
+
+          with policy_path.open(encoding="utf-8") as f:
+              policy = yaml.safe_load(f)
 
           if not isinstance(policy, dict):
               raise SystemExit("Severity policy must be a YAML mapping")
 
-          rollout = policy.get("rollout", {})
+          severity_levels = policy.get("severity_levels")
+          if severity_levels is not None and not isinstance(severity_levels, dict):
+              raise SystemExit("severity_levels must be a mapping")
 
-          if not isinstance(rollout, dict):
-              raise SystemExit("rollout must be a YAML mapping")
+          rollout = policy.get("scanner_rollout")
+          if rollout is not None:
+              if not isinstance(rollout, dict):
+                  raise SystemExit("scanner_rollout must be a mapping")
 
-          mode = rollout.get("new_scanner_mode")
-          if mode != "warn_only_first_two_weeks":
-              raise SystemExit(
-                  f"Unexpected scanner rollout mode: {mode}"
-              )
+              mode = rollout.get("mode")
+              if mode != "warn-only":
+                  raise SystemExit(
+                      f"Unexpected scanner rollout mode: {mode}"
+                  )
 
-          requirement = rollout.get("promotion_requires")
-          if requirement != "low_false_positive_rate":
-              raise SystemExit(
-                  f"Unexpected promotion requirement: {requirement}"
-              )
+              requirement = rollout.get("promotion_requires")
+              if requirement != "low_false_positive_rate":
+                  raise SystemExit(
+                      f"Unexpected promotion requirement: {requirement}"
+                  )
 
           print("Severity policy and rollout settings are valid.")
           PY
@@ -103,23 +95,56 @@ jobs:
           echo "Mode: warn-only during the initial rollout."
           echo "Promotion requires a low false-positive rate."
 
+  summary:
+    name: Write developer security summary
+    runs-on: ubuntu-latest
+    needs:
+      - sast
+      - preflight
+      - severity-policy
+    if: always()
+    permissions:
+      contents: read
+    steps:
+      - name: Write security summary
+        shell: bash
+        env:
+          SAST_RESULT: ${{ needs.sast.result }}
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          POLICY_RESULT: ${{ needs.severity-policy.result }}
+        run: |
+          {
+            echo "## Security Summary"
+            echo "- SAST result: ${SAST_RESULT}"
+            echo "- Preflight result: ${PREFLIGHT_RESULT}"
+            echo "- Severity policy result: ${POLICY_RESULT}"
+            echo "- Evidence bundle: uploaded by the evidence-bundle job"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   evidence-bundle:
-    name: Build security evidence bundle
+    name: Build and upload security evidence bundle
     runs-on: ubuntu-latest
     needs:
       - preflight
       - severity-policy
+    if: always()
+    permissions:
+      contents: read
+      artifact-metadata: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build evidence bundle
+        shell: bash
         run: bash scripts/evidence-bundle.sh
 
-      - name: Upload evidence bundle
+      - name: Upload security evidence artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lab85-security-evidence
+          name: security-evidence-${{ github.run_number }}-${{ github.sha }}
           path: security/evidence-bundle.tgz
           if-no-files-found: error
           retention-days: 30
+          compression-level: 6
+          include-hidden-files: false

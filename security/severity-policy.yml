@@ -1,17 +1,3 @@
-
-version: 1
-
-severity_policy:
-  blocking:
-    - critical
-    - high
-  warning:
-    - medium
-    - low
-  informational:
-    - info
-    - unknown
-
 severity_mapping:
   CRITICAL: critical
   HIGH: high
@@ -23,15 +9,15 @@ domain_rules:
   secrets:
     rule: "block_all_verified"
     reason: "A verified credential can expose cloud accounts, signing keys, build systems, or player data."
-  containers:
-    rule: "block_high_runtime_reachable"
-    reason: "Container findings matter most when they exist in runtime packages or reachable service paths."
+
   dependencies:
     rule: "block_high_with_fix"
     reason: "Dependency gates should prioritize severe findings that have a safe upgrade path."
+
   iac:
     rule: "block_high_external_exposure"
     reason: "Infrastructure findings should block when they expose public access, privileged identity, or sensitive storage."
+
   sast:
     rule: "block_high_confidence_high_impact"
     reason: "Static analysis gates should balance impact, exploitability, and false-positive risk."
