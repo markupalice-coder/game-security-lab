@@ -8,7 +8,7 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY server.js ./
+COPY --chown=node:node server.js ./
 
 USER node
 
@@ -16,4 +16,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 CMD node 
 
 EXPOSE 3000
 
-CMD ["node","server.js"]
+CMD ["node", "server.js"]
