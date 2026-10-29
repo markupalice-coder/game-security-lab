@@ -1,14 +1,37 @@
+
 name: security-orchestrator
 
 on:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
 
+concurrency:
+  group: security-orchestrator-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  sast:
+  preflight:
+    name: preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required security files
+        run: |
+          test -f security/severity-policy.yml
+          test -f scripts/severity-policy-summary.sh
+          test -f .github/workflows/security-reusable.yml
+          test -f deploy/k8s/api.yaml
+
+  reusable-security:
+    name: reusable-security
     uses: ./.github/workflows/security-reusable.yml
     with:
       target-path: .
@@ -16,18 +39,23 @@ jobs:
   severity-policy:
     name: severity-policy
     runs-on: ubuntu-latest
-    needs: [sast]
+    needs: [preflight]
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
 
       - name: Validate severity policy YAML
-        run: docker run --rm -v "$PWD:/work" -w /work mikefarah/yq:4 eval '.' security/severity-policy.yml > /dev/null
+        run: |
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            mikefarah/yq:4 \
+            eval '.' security/severity-policy.yml > /dev/null
 
       - name: Write normalized severity policy summary
         if: always()
-        run: ./scripts/severity-policy-summary.sh
+        run: bash scripts/severity-policy-summary.sh
 
       - name: Upload severity policy evidence
         if: always()
@@ -35,25 +63,54 @@ jobs:
         with:
           name: severity-policy-summary
           path: security/out/severity-policy-summary.md
+          if-no-files-found: warn
 
   summary:
     name: security-summary
     runs-on: ubuntu-latest
-    needs: [sast, severity-policy]
+    needs: [preflight, reusable-security, severity-policy]
     if: always()
     permissions:
       contents: read
     steps:
       - name: Write security summary
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          SECURITY_RESULT: ${{ needs.reusable-security.result }}
+          POLICY_RESULT: ${{ needs.severity-policy.result }}
         run: |
           {
             echo "## Security Summary"
             echo
-            echo "- SAST: ${{ needs.sast.result }}"
-            echo "- Severity policy: ${{ needs.severity-policy.result }}"
+            echo "- Preflight: ${PREFLIGHT_RESULT}"
+            echo "- Reusable security: ${SECURITY_RESULT}"
+            echo "- Severity policy: ${POLICY_RESULT}"
             echo
-            echo "Severity decisions are now normalized through security/severity-policy.yml."
+            echo "Severity decisions are normalized through security/severity-policy.yml."
             echo
             echo "Blocking tier: critical, high"
             echo "Warning tier: medium, low"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  final-decision:
+    name: final-security-decision
+    runs-on: ubuntu-latest
+    needs: [preflight, reusable-security, severity-policy, summary]
+    if: always()
+    permissions:
+      contents: read
+    steps:
+      - name: Fail if any orchestrated job failed
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          SECURITY_RESULT: ${{ needs.reusable-security.result }}
+          POLICY_RESULT: ${{ needs.severity-policy.result }}
+        run: |
+          if [[ "$PREFLIGHT_RESULT" != "success" ||
+                "$SECURITY_RESULT" != "success" ||
+                "$POLICY_RESULT" != "success" ]]; then
+            echo "Security orchestrator failed. Check upstream job logs."
+            exit 1
+          fi
+
+          echo "Security orchestrator passed."
