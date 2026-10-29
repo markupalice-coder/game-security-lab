@@ -1,0 +1,104 @@
+schema_version: "1.0"
+policy_name: "scanner-severity-normalization"
+owner: "security-team"
+purpose: "Normalize scanner severities into consistent pull request decisions."
+
+decision_tiers:
+  block:
+    description: "The pull request must not merge until fixed or formally accepted."
+    normalized_severities:
+      - critical
+      - high
+  warn:
+    description: "The finding must be visible to developers but does not block by default."
+    normalized_severities:
+      - medium
+      - low
+  info:
+    description: "The finding is recorded for evidence and trend analysis."
+    normalized_severities:
+      - informational
+      - unknown
+
+scanner_aliases:
+  semgrep:
+    CRITICAL: critical
+    HIGH: high
+    MEDIUM: medium
+    LOW: low
+    ERROR: high
+    WARNING: medium
+    INFO: low
+  codeql:
+    critical: critical
+    high: high
+    medium: medium
+    low: low
+    note: informational
+    warning: medium
+    error: high
+  gitleaks:
+    verified_secret: critical
+    possible_secret: high
+    allowlisted_training_secret: informational
+  trivy:
+    CRITICAL: critical
+    HIGH: high
+    MEDIUM: medium
+    LOW: low
+    UNKNOWN: unknown
+  osv:
+    critical: critical
+    high: high
+    medium: medium
+    low: low
+    unknown: unknown
+  grype:
+    Critical: critical
+    High: high
+    Medium: medium
+    Low: low
+    Negligible: informational
+    Unknown: unknown
+  checkov:
+    CRITICAL: critical
+    HIGH: high
+    MEDIUM: medium
+    LOW: low
+    UNKNOWN: unknown
+
+domain_rules:
+  secrets:
+    rule: "block_all_verified"
+    reason: "A verified credential can expose cloud accounts, signing keys, build systems, or player data."
+  containers:
+    rule: "block_high_runtime_reachable"
+    reason: "Container findings matter most when they exist in runtime packages or reachable service paths."
+  dependencies:
+    rule: "block_high_with_fix"
+    reason: "Dependency gates should prioritize severe findings that have a safe upgrade path."
+  iac:
+    rule: "block_high_external_exposure"
+    reason: "Infrastructure findings should block when they expose public access, privileged identity, or sensitive storage."
+  sast:
+    rule: "block_high_confidence_high_impact"
+    reason: "Static analysis gates should balance impact, exploitability, and false-positive risk."
+
+exception_requirements:
+  required_fields:
+    - finding_id
+    - scanner
+    - normalized_severity
+    - business_reason
+    - compensating_control
+    - owner
+    - expiry_date
+  maximum_duration_days: 30
+
+developer_message:
+  block: "Fix before merge or create a time-bound risk acceptance issue."
+  warn: "Review before merge and link follow-up work if needed."
+  info: "Recorded for evidence; no immediate action required."
+rollout:
+new_scanner_mode: warn_only_first_two_weeks
+promotion_requires: low_false_positive_rate

@@ -1,0 +1,20 @@
+[
+	{
+		"filename": "policies/fixtures/service-with-tag.json",
+		"namespace": "gaming.tags",
+		"successes": 1
+	},
+	{
+		"filename": "policies/fixtures/service-missing-tag.json",
+		"namespace": "gaming.tags",
+		"successes": 0,
+		"failures": [
+			{
+				"msg": "service must include environment tag",
+				"metadata": {
+					"query": "data.gaming.tags.deny"
+				}
+			}
+		]
+	}
+]

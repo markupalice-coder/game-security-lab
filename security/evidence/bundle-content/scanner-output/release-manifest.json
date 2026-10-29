@@ -1,0 +1,35 @@
+{
+  "schema": "game-studio.release-manifest.v1",
+  "generated_at": "2026-10-29T09:03:43Z",
+  "source": {
+    "commit": "2b6e25b317a59d5c598de3ae64f8d8e6e1cb6a57",
+    "short_commit": "2b6e25b",
+    "branch": "lab60-release-manifest"
+  },
+  "artifact": {
+    "type": "container-image",
+    "name": "game-api",
+    "image_reference": "game-api:lab56",
+    "image_id": "sha256:bf5418d7cd298cb87083d8fb074bb4c0ff588ab3361b6b77b77ef36f2bbc2302",
+    "primary_digest": "game-api@sha256:bf5418d7cd298cb87083d8fb074bb4c0ff588ab3361b6b77b77ef36f2bbc2302",
+    "repo_digests": [
+      "game-api@sha256:bf5418d7cd298cb87083d8fb074bb4c0ff588ab3361b6b77b77ef36f2bbc2302"
+    ]
+  },
+  "sbom": {
+    "path": "security/out/game-api.spdx.json",
+    "format": "SPDX JSON",
+    "sha256": "5a8738e63b5b053a751930a5c0e9c1c82a93255decd5a210bdfe487069cb0f5b"
+  },
+  "build_inputs": {
+    "dockerfile": {
+      "path": "src/api/Dockerfile",
+      "sha256": "c1de645479396efcfdf01ec807e26356780db25b6f68ddc51def1738cd254c6d"
+    }
+  },
+  "verification": {
+    "previous_lab": "Lab 59. Add Image Digest Discipline",
+    "current_lab": "Lab 60. Build a Release Artifact Manifest",
+    "rollback_ref": "lab60-start"
+  }
+}

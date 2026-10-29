@@ -1,0 +1,32 @@
+                      ├ driver version: 11.0.1+driver
+                      ├ driver type: modern_ebpf
+                      ├ driver name: falco
+                      ├ compile: true
+                      ├ download: true
+                      ├ target: debian
+                      ├ arch: x86_64
+                      ├ kernel release: 6.18.40.1-microsoft-standard-WSL2
+                      └ kernel version: #1 SMP PREEMPT_DYNAMIC Fri Jul 31 22:12:15 UTC 2026
+2026-10-29 16:25:27 INFO  No artifacts needed for the selected driver. 
+{"file":"falco_rules.yaml.tar.gz","level":"INFO","msg":"Extracting and installing artifact","timestamp":"2026-10-29 16:26:20","type":"rulesfile"}
+{"digest":"sha256:213c9bb201088fa23e7fe51e595ce52292ff55fa7a4d43b2628287f92b1d66d0","directory":"/rulesfiles","level":"INFO","msg":"Artifact successfully installed","name":"ghcr.io/falcosecurity/rules/falco-rules:5","timestamp":"2026-10-29 16:26:20","type":"rulesfile"}
+{"level":"INFO","msg":"Preparing to pull artifact","ref":"ghcr.io/falcosecurity/plugins/plugin/container:0.7.5","timestamp":"2026-10-29 16:26:20"}
+{"level":"INFO","msg":"Pulling layer 1b2a72513505","timestamp":"2026-10-29 16:26:22"}
+{"level":"INFO","msg":"Pulling layer ac29cbb16aa3","timestamp":"2026-10-29 16:26:22"}
+{"level":"INFO","msg":"Pulling layer 85dff86b0591","timestamp":"2026-10-29 16:26:37"}
+{"digest":"ghcr.io/falcosecurity/plugins/plugin/container@sha256:0e47c5be2315dc3b91c11486d5f2389c756bda494dbcf00c335ab65a069f10d2","level":"INFO","msg":"Verifying signature for artifact","timestamp":"2026-10-29 16:26:37"}
+{"level":"INFO","msg":"Signature successfully verified!","timestamp":"2026-10-29 16:26:42"}
+{"file":"container-0.7.5-linux-x86_64.tar.gz","level":"INFO","msg":"Extracting and installing artifact","timestamp":"2026-10-29 16:26:42","type":"plugin"}
+{"digest":"sha256:85dff86b0591a0f469395656417fc64540eef0c0fed2f4acf77ccd095420e3c3","directory":"/plugins","level":"INFO","msg":"Artifact successfully installed","name":"ghcr.io/falcosecurity/plugins/plugin/container:0.7.5","timestamp":"2026-10-29 16:26:42","type":"plugin"}
+Thu Oct 29 16:27:28 2026: Hostname value has been overridden via environment variable to: game-lab-control-plane
+Thu Oct 29 16:27:28 2026: The chosen syscall buffer dimension is: 8388608 bytes (8 MBs)
+Thu Oct 29 16:27:28 2026: Starting health webserver with threadiness 8, listening on 0.0.0.0:8765
+Thu Oct 29 16:27:28 2026: Loaded event sources: syscall
+Thu Oct 29 16:27:28 2026: Enabled event sources: syscall
+Thu Oct 29 16:27:28 2026: Opening 'syscall' source with modern BPF probe.
+Thu Oct 29 16:27:28 2026: One ring buffer every '2' CPUs.
+Thu Oct 29 16:27:28 2026: [libs]: Trying to open the right engine!
+Thu Oct 29 16:27:28 2026: [libs]: libpman: disabled BPF iterators (not running in the root PID namespace, or failed to determine it)
+{"hostname":"game-lab-control-plane","output":"16:28:51.654466476: Warning Lab80 Game API shell spawned | user=<NA> | proc=sh | cmdline=sh -c id | parent=<NA> | pod=game-api-6b87499d9c-2dxtx | namespace=default | container=api | image=docker.io/library/import-2026-10-29 | container_id=1d3983f05126 container_id=1d3983f05126 container_name=api container_image_repository=docker.io/library/import-2026-10-29 container_image_tag=local k8s_pod_name=game-api-6b87499d9c-2dxtx k8s_ns_name=default","output_fields":{"container.id":"1d3983f05126","container.image.repository":"docker.io/library/import-2026-10-29","container.image.tag":"local","container.name":"api","evt.time":1793291331654466476,"k8s.ns.name":"default","k8s.pod.name":"game-api-6b87499d9c-2dxtx","proc.cmdline":"sh -c id","proc.name":"sh","proc.pname":null,"user.name":"<NA>"},"priority":"Warning","rule":"Lab80 Game API Shell Spawned","source":"syscall","tags":["container","game-api","kubernetes","lab80","runtime"],"time":"2026-10-29T16:28:51.654466476Z"}
+{"artifact":"falco-rules:5","check every":"168h0m0s","level":"INFO","msg":"Creating follower","timestamp":"2026-10-29 16:27:29"}
+{"artifact":"ghcr.io/falcosecurity/rules/falco-rules:5","level":"INFO","msg":"Starting follower","timestamp":"2026-10-29 16:27:29"}

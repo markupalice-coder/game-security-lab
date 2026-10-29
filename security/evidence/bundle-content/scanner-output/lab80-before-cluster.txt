@@ -1,0 +1,32 @@
+NAMESPACE            NAME                                                 READY   STATUS    RESTARTS   AGE
+default              pod/game-api-6b87499d9c-2dxtx                        1/1     Running   0          67m
+default              pod/game-api-6b87499d9c-7b8nj                        1/1     Running   0          67m
+kube-system          pod/coredns-559f6c778d-7x546                         1/1     Running   0          91m
+kube-system          pod/coredns-559f6c778d-l5kjp                         1/1     Running   0          91m
+kube-system          pod/etcd-game-lab-control-plane                      1/1     Running   0          91m
+kube-system          pod/kindnet-57lfl                                    1/1     Running   0          91m
+kube-system          pod/kube-apiserver-game-lab-control-plane            1/1     Running   0          91m
+kube-system          pod/kube-controller-manager-game-lab-control-plane   1/1     Running   0          91m
+kube-system          pod/kube-proxy-psdtd                                 1/1     Running   0          91m
+kube-system          pod/kube-scheduler-game-lab-control-plane            1/1     Running   0          91m
+local-path-storage   pod/local-path-provisioner-75f7fc7dc5-bxhss          1/1     Running   0          91m
+
+NAMESPACE     NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                  AGE
+default       service/game-api     ClusterIP   10.96.97.231   <none>        3000/TCP                 17m
+default       service/kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP                  91m
+kube-system   service/kube-dns     ClusterIP   10.96.0.10     <none>        53/UDP,53/TCP,9153/TCP   91m
+
+NAMESPACE     NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/kindnet      1         1         1       1            1           kubernetes.io/os=linux   91m
+kube-system   daemonset.apps/kube-proxy   1         1         1       1            1           kubernetes.io/os=linux   91m
+
+NAMESPACE            NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+default              deployment.apps/game-api                 2/2     2            2           77m
+kube-system          deployment.apps/coredns                  2/2     2            2           91m
+local-path-storage   deployment.apps/local-path-provisioner   1/1     1            1           91m
+
+NAMESPACE            NAME                                                DESIRED   CURRENT   READY   AGE
+default              replicaset.apps/game-api-6b87499d9c                 2         2         2       67m
+default              replicaset.apps/game-api-7ccd8f4fbf                 0         0         0       77m
+kube-system          replicaset.apps/coredns-559f6c778d                  2         2         2       91m
+local-path-storage   replicaset.apps/local-path-provisioner-75f7fc7dc5   1         1         1       91m
