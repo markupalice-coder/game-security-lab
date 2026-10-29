@@ -1,0 +1,105 @@
+name: Security Remediation
+description: Track the fix, evidence, or accepted risk for a security scanner finding.
+title: "[Security Remediation]: "
+labels:
+  - security-triage
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when a scanner finding needs developer action, evidence, or risk acceptance.
+
+  - type: input
+    id: scanner
+    attributes:
+      label: Scanner or Control
+      description: "Example: CodeQL, Semgrep, Gitleaks, OSV, Trivy, Grype, Checkov, Conftest"
+      placeholder: "Semgrep"
+    validations:
+      required: true
+
+  - type: input
+    id: finding-id
+    attributes:
+      label: Finding ID or Link
+      description: "Paste the scanner alert, workflow run, SARIF alert, or issue link."
+      placeholder: "https://github.com/org/repo/security/code-scanning/123"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: finding-family
+    attributes:
+      label: Finding Family
+      options:
+        - SAST
+        - Secrets
+        - Dependencies
+        - Containers
+        - Infrastructure as Code
+        - Runtime
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Informational
+    validations:
+      required: true
+
+  - type: textarea
+    id: root-cause
+    attributes:
+      label: Root Cause
+      description: "Explain what caused the finding in plain language."
+      placeholder: "User-controlled input reached an unsafe debug endpoint."
+    validations:
+      required: true
+
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Remediation Plan
+      description: "Explain the fix, mitigation, or risk acceptance plan."
+      placeholder: "Remove the endpoint, add authorization, and add regression test."
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: "Add links to commits, tests, scanner results, SBOMs, screenshots, or workflow runs."
+      placeholder: |
+        - Fixed commit: ...
+        - Test run: ...
+        - Scanner rerun: ...
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: "Name the person or team responsible for closure."
+      placeholder: "@backend-team"
+    validations:
+      required: true
+
+  - type: input
+    id: expiry
+    attributes:
+      label: Expiry Date for Accepted Risk
+      description: "Required if this is not fixed immediately."
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: false
