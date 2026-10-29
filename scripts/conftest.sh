@@ -12,10 +12,10 @@ echo "Target: ${TARGET_FILE}"
 echo "Policy directory: ${POLICY_DIR}"
 
 docker run --rm \
-  -v "$PWD:/work" \
-  -w /work \
-  "$CONFTEST_IMAGE" \
-  test \
-  --policy "$POLICY_DIR" \
-  --namespace gaming.tags \
-  "$TARGET_FILE"
+-v "$PWD:/work" \
+-w /work \
+"$CONFTEST_IMAGE" \
+test \
+--policy "$POLICY_DIR" \
+--namespace gaming.tags \
+"$TARGET_FILE"

@@ -1,0 +1,37 @@
+name: iac-control-evidence
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  map-iac-findings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Checkov JSON evidence
+        run: |
+          mkdir -p security/out
+          docker run --rm -v "$PWD:/repo" bridgecrew/checkov:latest -d /repo/infra --quiet --output json > security/out/checkov-iac.json || true
+
+      - name: Generate Conftest JSON evidence
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work openpolicyagent/conftest:latest test policies/fixtures --policy policies/rego --all-namespaces --output json > security/out/conftest-iac.json || true
+
+      - name: Build IaC control evidence report
+        run: python3 scripts/iac-control-report.py
+
+      - name: Upload IaC control evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: iac-control-evidence
+          path: security/out/iac-control-evidence.md
+          if-no-files-found: error
+          retention-days: 30
