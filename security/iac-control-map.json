@@ -1,0 +1,42 @@
+{
+"version": "1.0",
+"lab": "69",
+"title": "Map IaC Findings to Control Register",
+"controls": [
+{
+"control_id": "IAC-001",
+"control_name": "IaC Misconfiguration Baseline",
+"scanner": "Checkov",
+"owner": "Platform Team",
+"applies_to": ["infra/", "deploy/", ".github/workflows/"],
+"evidence_files": ["security/out/checkov-iac.json", "security/out/iac-control-evidence.md"],
+"required_response": "Remediate unsafe configuration or document a future exception."
+},
+{
+"control_id": "IAC-002",
+"control_name": "Studio-Specific Policy Enforcement",
+"scanner": "Conftest with OPA/Rego",
+"owner": "Security Team",
+"applies_to": ["policies/rego/", "policies/fixtures/"],
+"evidence_files": ["security/out/conftest-iac.json", "security/out/iac-control-evidence.md"],
+"required_response": "Fix the policy violation or assign an accountable owner."
+},
+{
+"control_id": "IAC-003",
+"control_name": "Finding Accountability",
+"scanner": "Governance Review",
+"owner": "Security and Platform Leads",
+"applies_to": ["security/control-register.md", "security/out/iac-control-evidence.md"],
+"evidence_files": ["security/out/iac-control-evidence.md"],
+"required_response": "Every finding must include severity, owner, remediation, and exception expiry when accepted."
+}
+],
+"required_finding_fields": [
+"control_id",
+"scanner",
+"severity",
+"owner",
+"remediation",
+"exception_expiry"
+]
+}
