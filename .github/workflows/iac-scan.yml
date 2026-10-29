@@ -1,0 +1,25 @@
+name: iac-scan
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  checkov:
+    name: checkov
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Checkov script is executable
+        run: test -x scripts/checkov.sh
+
+      - name: Run Checkov IaC scan
+        run: ./scripts/checkov.sh
