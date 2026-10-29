@@ -5,9 +5,8 @@ metadata:
   name: game-api
   labels:
     app: game-api
-
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: game-api
@@ -17,28 +16,23 @@ spec:
         app: game-api
     spec:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
 
-      volumes:
-        - name: tmp
-          emptyDir: {}
-
       containers:
-        - name: api
-          image: game-api:local
-          imagePullPolicy: IfNotPresent
+        - name: game-api
+          image: nginx:1.27
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
 
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
+            readOnlyRootFilesystem: true
 
           volumeMounts:
             - name: tmp
@@ -52,8 +46,10 @@ spec:
               cpu: 500m
               memory: 512Mi
 
-          ports:
-            - containerPort: 3000
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service
@@ -68,5 +64,5 @@ spec:
   ports:
     - name: http
       port: 3000
-      targetPort: 3000
+      targetPort: http
       protocol: TCP

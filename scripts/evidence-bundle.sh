@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -9,73 +10,79 @@ BUNDLE_CONTENT="$EVIDENCE_ROOT/bundle-content"
 SCANNER_OUTPUT="$BUNDLE_CONTENT/scanner-output"
 BUNDLE_FILE="security/evidence-bundle.tgz"
 
+# Start with a clean evidence directory.
 rm -rf "$BUNDLE_CONTENT"
 mkdir -p "$SCANNER_OUTPUT"
 
 copy_if_exists() {
-local source_path="$1"
-local destination_path="$2"
+    local source_path="$1"
+    local destination_path="$2"
 
-if [[ -e "$source_path" ]]; then
-mkdir -p "$(dirname "$destination_path")"
-cp -R "$source_path" "$destination_path"
-echo "Collected: $source_path"
-else
-echo "Skipped missing file: $source_path"
-fi
+    if [[ -e "$source_path" ]]; then
+        mkdir -p "$(dirname "$destination_path")"
+        cp -R "$source_path" "$destination_path"
+        echo "Collected: $source_path"
+    else
+        echo "Skipped missing file: $source_path"
+    fi
 }
 
-copy_if_exists "security/control-register.md" "$BUNDLE_CONTENT/control-register.md"
-copy_if_exists "security/severity-policy.yml" "$BUNDLE_CONTENT/severity-policy.yml"
-copy_if_exists "security/vulnerability-sla.yml" "$BUNDLE_CONTENT/vulnerability-sla.yml"
+# Collect policy and retention documentation.
+copy_if_exists \
+    "security/severity-policy.yml" \
+    "$BUNDLE_CONTENT/security/severity-policy.yml"
 
-if [[ -d "security/out" ]]; then
-cp -R security/out/. "$SCANNER_OUTPUT/"
-echo "Collected scanner outputs from security/out"
+copy_if_exists \
+    "security/sarif-retention.md" \
+    "$BUNDLE_CONTENT/security/sarif-retention.md"
+
+# Collect relevant workflow configuration.
+copy_if_exists \
+    ".github/workflows/security-orchestrator.yml" \
+    "$BUNDLE_CONTENT/.github/workflows/security-orchestrator.yml"
+
+copy_if_exists \
+    ".github/workflows/sarif-retention-audit.yml" \
+    "$BUNDLE_CONTENT/.github/workflows/sarif-retention-audit.yml"
+
+# Collect the Kubernetes API manifest.
+copy_if_exists \
+    "deploy/k8s/api.yaml" \
+    "$BUNDLE_CONTENT/deploy/k8s/api.yaml"
+
+# Collect SARIF reports when available.
+if [[ -d "security/out/sarif" ]]; then
+    while IFS= read -r -d '' sarif_file; do
+        cp "$sarif_file" "$SCANNER_OUTPUT/"
+        echo "Collected SARIF report: $sarif_file"
+    done < <(
+        find security/out/sarif \
+            -maxdepth 1 \
+            -type f \
+            -name '*.sarif' \
+            -print0
+    )
 else
-echo "No security/out directory found"
+    echo "Skipped missing directory: security/out/sarif"
 fi
 
-cat > "$BUNDLE_CONTENT/evidence-manifest.md" <<MANIFEST
-# Security Evidence Bundle Manifest
+# Collect additional security reports if present.
+copy_if_exists \
+    "security/reports" \
+    "$BUNDLE_CONTENT/security/reports"
 
-Generated UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+# Include the evidence-bundle script itself.
+copy_if_exists \
+    "scripts/evidence-bundle.sh" \
+    "$BUNDLE_CONTENT/scripts/evidence-bundle.sh"
 
-Git Commit: $(git rev-parse HEAD 2>/dev/null || echo "not-a-git-repository")
+# Create the compressed evidence archive.
+mkdir -p "$(dirname "$BUNDLE_FILE")"
 
-Git Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+tar -czf "$BUNDLE_FILE" \
+    -C "$EVIDENCE_ROOT" \
+    bundle-content
 
-Repository Root: $PROJECT_ROOT
-
-## Purpose
-
-This bundle preserves security evidence for release review, audit review, incident review, and scanner rollout governance.
-
-## Expected Contents
-
-- control-register.md
-- severity-policy.yml
-- vulnerability-sla.yml
-- scanner-output/
-- SHA256SUMS
-- evidence-manifest.md
-
-## Lab Context
-
-Lab 85 creates the local evidence bundle.
-
-Lab 86 will upload this bundle as retained CI evidence.
-MANIFEST
-
-if command -v sha256sum >/dev/null 2>&1; then
-find "$BUNDLE_CONTENT" -type f ! -name "SHA256SUMS" -print0 | sort -z | xargs -0 sha256sum > "$BUNDLE_CONTENT/SHA256SUMS"
-else
-find "$BUNDLE_CONTENT" -type f ! -name "SHA256SUMS" -print0 | sort -z | xargs -0 shasum -a 256 > "$BUNDLE_CONTENT/SHA256SUMS"
-fi
-
-rm -f "$BUNDLE_FILE"
-tar -czf "$BUNDLE_FILE" -C "$EVIDENCE_ROOT" bundle-content
-
-echo
-echo "Evidence bundle created:"
-ls -lh "$BUNDLE_FILE"
+echo "Security evidence bundle created: $BUNDLE_FILE"
+echo "Archive contents:"
+tar -tzf "$BUNDLE_FILE"

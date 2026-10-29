@@ -1,58 +1,143 @@
+
 name: security-orchestrator
 
 on:
   pull_request:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
   contents: read
-  artifact-metadata: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: security-orchestrator-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  sast:
-    name: Run reusable security scan
-    uses: ./.github/workflows/security-reusable.yml
-    with:
-      target-path: .
-
-  summary:
-    name: Write developer security summary
+  preflight:
+    name: Security preflight
     runs-on: ubuntu-latest
-    needs: [sast]
-    permissions:
-      contents: read
-    if: always()
+    outputs:
+      result: ${{ steps.preflight-result.outputs.result }}
+
     steps:
-      - name: Write security summary
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required security files
+        id: preflight-result
         shell: bash
         run: |
-          {
-            echo "## Security Summary"
-            echo "- Reusable SAST workflow result: ${{ needs.sast.result }}"
-            echo "- Evidence bundle: uploaded by the evidence job"
-          } >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
 
-  evidence:
-    name: Upload security evidence bundle
+          required_files=(
+            "security/severity-policy.yml"
+            "scripts/evidence-bundle.sh"
+            "scripts/validate-sarif-for-retention.py"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "::error::Required security file is missing: $file"
+              exit 1
+            fi
+          done
+
+          echo "result=passed" >> "$GITHUB_OUTPUT"
+          echo "Security preflight passed."
+
+  severity-policy:
+    name: Validate severity policy
     runs-on: ubuntu-latest
-    needs: [sast, summary]
+    needs: preflight
+    outputs:
+      result: ${{ steps.policy-result.outputs.result }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate severity policy YAML
+        id: policy-result
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          import sys
+
+          try:
+              import yaml
+          except ImportError:
+              print("PyYAML is required for policy validation.", file=sys.stderr)
+              sys.exit(1)
+
+          from pathlib import Path
+
+          path = Path("security/severity-policy.yml")
+
+          try:
+              with path.open("r", encoding="utf-8") as file:
+                  policy = yaml.safe_load(file)
+          except (OSError, yaml.YAMLError) as exc:
+              print(f"Invalid severity policy YAML: {exc}", file=sys.stderr)
+              sys.exit(1)
+
+          if not isinstance(policy, dict):
+              sys.exit("Severity policy must be a YAML mapping.")
+
+          if not isinstance(policy.get("decision_tiers"), dict):
+              sys.exit("Severity policy is missing decision_tiers.")
+
+          if not isinstance(policy.get("scanner_aliases"), dict):
+              sys.exit("Severity policy is missing scanner_aliases.")
+
+          print("Severity policy YAML validation passed.")
+          PY
+
+          echo "result=passed" >> "$GITHUB_OUTPUT"
+
+  sarif-retention:
+    name: Validate SARIF retention evidence
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: always() && needs.preflight.result == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate sample SARIF before retention
+        run: |
+          python3 scripts/validate-sarif-for-retention.py \
+            security/out/sarif/lab88-sample.sarif
+
+      - name: Upload raw SARIF retention evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab88-sarif-retention-${{ github.run_number }}-${{ github.sha }}
+          path: security/out/sarif/lab88-sample.sarif
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+
+  evidence-bundle:
+    name: Build and upload security evidence bundle
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - severity-policy
+    if: always()
     permissions:
       contents: read
-      artifact-metadata: write
-    if: always()
+      actions: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build evidence bundle
         shell: bash
-        run: ./scripts/evidence-bundle.sh
+        run: bash scripts/evidence-bundle.sh
 
       - name: Upload security evidence artifact
         uses: actions/upload-artifact@v4
@@ -63,3 +148,32 @@ jobs:
           retention-days: 30
           compression-level: 6
           include-hidden-files: false
+
+  security-summary:
+    name: Publish security summary
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - severity-policy
+      - sarif-retention
+      - evidence-bundle
+    if: always()
+    permissions:
+      contents: read
+
+    steps:
+      - name: Write security summary
+        shell: bash
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          POLICY_RESULT: ${{ needs.severity-policy.result }}
+          SARIF_RESULT: ${{ needs.sarif-retention.result }}
+          EVIDENCE_RESULT: ${{ needs.evidence-bundle.result }}
+        run: |
+          {
+            echo "## Security Summary"
+            echo "- Preflight result: ${PREFLIGHT_RESULT}"
+            echo "- Severity policy result: ${POLICY_RESULT}"
+            echo "- SARIF retention result: ${SARIF_RESULT}"
+            echo "- Evidence bundle result: ${EVIDENCE_RESULT}"
+          } >> "$GITHUB_STEP_SUMMARY"
