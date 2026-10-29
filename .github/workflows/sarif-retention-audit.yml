@@ -1,0 +1,31 @@
+name: sarif-retention-audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "security/sarif-retention.md"
+      - "security/out/sarif/lab88-sample.sarif"
+      - "scripts/validate-sarif-for-retention.py"
+      - ".github/workflows/sarif-retention-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit-sarif-retention:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate sample SARIF before retention
+        run: python3 scripts/validate-sarif-for-retention.py security/out/sarif/lab88-sample.sarif
+
+      - name: Upload raw SARIF retention evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab88-sarif-retention-sample
+          path: security/out/sarif/lab88-sample.sarif
+          retention-days: 90

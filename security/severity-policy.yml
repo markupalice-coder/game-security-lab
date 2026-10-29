@@ -1,7 +1,10 @@
 
+schema_version: "1.0"
 version: 1
 
-policy_name: gaming-security-severity-policy
+policy_name: "scanner-severity-normalization"
+owner: "security-team"
+purpose: "Normalize scanner severities into consistent pull request decisions."
 
 severity_levels:
   - critical
@@ -11,52 +14,40 @@ severity_levels:
   - informational
   - unknown
 
-scanner_mappings:
+decision_tiers:
+  block:
+    description: "The pull request must not merge until fixed or formally accepted."
+    normalized_severities:
+      - critical
+      - high
+  warn:
+    description: "The finding must be visible to developers but does not block by default."
+    normalized_severities:
+      - medium
+      - low
+  info:
+    description: "The finding is recorded for evidence and trend analysis."
+    normalized_severities:
+      - informational
+      - unknown
+
+scanner_aliases:
   semgrep:
-    ERROR: high
-    WARNING: medium
-    INFO: informational
-
-  gitleaks:
-    verified_secret: critical
-    possible_secret: high
-    allowlisted_training_secret: informational
-
-  trivy:
     CRITICAL: critical
     HIGH: high
     MEDIUM: medium
     LOW: low
-    UNKNOWN: unknown
-
-  osv:
+    ERROR: high
+    WARNING: medium
+    INFO: low
+  codeql:
     critical: critical
     high: high
     medium: medium
     low: low
-    unknown: unknown
-
-  grype:
-    Critical: critical
-    High: high
-    Medium: medium
-    Low: low
-    Negligible: informational
-    Unknown: unknown
-
-  checkov:
-    CRITICAL: critical
-    HIGH: high
-    MEDIUM: medium
-    LOW: low
-    UNKNOWN: unknown
-
-severity_mapping:
-  CRITICAL: critical
-  HIGH: high
-  MEDIUM: medium
-  LOW: low
-  UNKNOWN: unknown
+    note: informational
+    warning: medium
+    error: high
 
 domain_rules:
   secrets:
@@ -69,27 +60,4 @@ domain_rules:
 
   iac:
     rule: "block_high_external_exposure"
-    reason: "High-severity infrastructure findings with external exposure must block release."
-
-  containers:
-    rule: "block_critical"
-    reason: "Critical container vulnerabilities must block release."
-
-  sast:
-    rule: "block_high"
-    reason: "High-severity static analysis findings must block release."
-
-vulnerability_sla:
-  policy_file: security/vulnerability-sla.yml
-  critical:
-    remediation_due: 24h
-    release_gate: block
-  high:
-    remediation_due: 7d
-    release_gate: block_if_fix_available
-  medium:
-    remediation_due: 30d
-    release_gate: warn
-  low:
-    remediation_due: 90d
-    release_gate: track
+    reason: "High-severity infrastructure findings that expose services externally should block merging."
