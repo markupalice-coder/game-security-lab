@@ -99,3 +99,6 @@ developer_message:
   block: "Fix before merge or create a time-bound risk acceptance issue."
   warn: "Review before merge and link follow-up work if needed."
   info: "Recorded for evidence; no immediate action required."
+rollout:
+new_scanner_mode: warn_only_first_two_weeks
+promotion_requires: low_false_positive_rate
