@@ -1,0 +1,37 @@
+name: scanner-rollout-demo
+
+on:
+  pull_request:
+    paths:
+      - security/severity-policy.yml
+      - scripts/scanner-rollout-gate.sh
+      - .github/workflows/scanner-rollout-demo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  experimental-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run experimental scanner in warn-only mode
+        env:
+          SCANNER_NAME: experimental-new-scanner
+          SCANNER_EXIT_CODE: "1"
+        run: ./scripts/scanner-rollout-gate.sh
+
+      - name: Publish rollout summary
+        if: always()
+        run: |
+          {
+            echo "## Scanner Rollout Demo"
+            echo
+            echo "- Expected behavior: warning annotation, green job."
+            echo "- Policy file: \`security/severity-policy.yml\`"
+            echo "- Generated report: \`security/out/experimental-new-scanner-rollout.md\`"
+            echo "- Next promotion requirement: low false positive rate."
+          } >> "$GITHUB_STEP_SUMMARY"
