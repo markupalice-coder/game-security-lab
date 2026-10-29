@@ -1,3 +1,4 @@
+
 name: security-orchestrator
 
 on:
@@ -6,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 concurrency:
   group: security-orchestrator-${{ github.ref }}
@@ -21,15 +23,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run orchestrator preflight
+      - name: Run security preflight
         run: bash ./scripts/security-orchestrator-preflight.sh
 
   reusable-security:
     name: reusable security control plane
-    needs: preflight
     uses: ./.github/workflows/security-reusable.yml
     with:
       target-path: .
+
+  summary:
+    name: Security summary
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - reusable-security
+    if: always()
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Write security summary
+        env:
+          SAST_RESULT: ${{ needs.reusable-security.result }}
+          SECRETS_RESULT: tracked-by-dedicated-workflow
+          DEPENDENCIES_RESULT: tracked-by-dedicated-workflow
+          CONTAINERS_RESULT: tracked-by-dedicated-workflow
+          IAC_RESULT: tracked-by-dedicated-workflow
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: ./scripts/write-security-summary.sh
 
   final-decision:
     name: final security decision
