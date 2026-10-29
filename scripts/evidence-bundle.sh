@@ -27,6 +27,7 @@ fi
 
 copy_if_exists "security/control-register.md" "$BUNDLE_CONTENT/control-register.md"
 copy_if_exists "security/severity-policy.yml" "$BUNDLE_CONTENT/severity-policy.yml"
+copy_if_exists "security/vulnerability-sla.yml" "$BUNDLE_CONTENT/vulnerability-sla.yml"
 
 if [[ -d "security/out" ]]; then
 cp -R security/out/. "$SCANNER_OUTPUT/"
@@ -54,6 +55,7 @@ This bundle preserves security evidence for release review, audit review, incide
 
 - control-register.md
 - severity-policy.yml
+- vulnerability-sla.yml
 - scanner-output/
 - SHA256SUMS
 - evidence-manifest.md
