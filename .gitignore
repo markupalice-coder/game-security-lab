@@ -15,3 +15,6 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+# Lab 88 generated SARIF scanner outputs
+security/out/sarif/*.sarif
+!security/out/sarif/.gitkeep
