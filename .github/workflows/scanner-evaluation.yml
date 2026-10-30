@@ -1,0 +1,35 @@
+name: scanner-evaluation
+
+on:
+  pull_request:
+    paths:
+      - "security/scanner-evaluations/**"
+      - "security/scanner-evaluation-scorecard.md"
+      - "scripts/render-scanner-scorecard.py"
+      - ".github/workflows/scanner-evaluation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-scorecard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Render scanner evaluation scorecard
+        run: python3 scripts/render-scanner-scorecard.py
+
+      - name: Upload scorecard evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: scanner-evaluation-scorecard
+          path: security/out/scanner-evaluation-scorecard.md
+          retention-days: 30
