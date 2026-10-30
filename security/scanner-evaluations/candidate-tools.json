@@ -1,0 +1,70 @@
+{
+"minimum_adoption_score": 4.0,
+"warn_only_floor": 3.2,
+"weights": {
+"open_source_usability": 0.12,
+"ci_reliability": 0.16,
+"signal_quality": 0.20,
+"sarif_or_artifact_support": 0.12,
+"policy_control": 0.14,
+"runtime_cost": 0.08,
+"maintenance_health": 0.10,
+"gaming_relevance": 0.08
+},
+"candidates": [
+{
+"tool": "Semgrep Community",
+"category": "SAST",
+"source": "[https://github.com/semgrep/semgrep](https://github.com/semgrep/semgrep)",
+"owner": "Application Security",
+"scores": {
+"open_source_usability": 5,
+"ci_reliability": 4,
+"signal_quality": 4,
+"sarif_or_artifact_support": 4,
+"policy_control": 5,
+"runtime_cost": 4,
+"maintenance_health": 5,
+"gaming_relevance": 5
+},
+"evidence": "Already used for custom game-service rules, workflow rules, and client-authority checks.",
+"decision_notes": "Strong candidate for standard SAST and custom gaming-specific rules."
+},
+{
+"tool": "Trivy",
+"category": "Container and dependency scanning",
+"source": "[https://github.com/aquasecurity/trivy](https://github.com/aquasecurity/trivy)",
+"owner": "Platform Security",
+"scores": {
+"open_source_usability": 5,
+"ci_reliability": 4,
+"signal_quality": 4,
+"sarif_or_artifact_support": 5,
+"policy_control": 4,
+"runtime_cost": 3,
+"maintenance_health": 5,
+"gaming_relevance": 4
+},
+"evidence": "Useful for container image, filesystem, dependency, and configuration scanning.",
+"decision_notes": "Strong candidate for container and game-service artifact gates."
+},
+{
+"tool": "OpenSSF Scorecard",
+"category": "Open-source project health",
+"source": "[https://github.com/ossf/scorecard](https://github.com/ossf/scorecard)",
+"owner": "Supply Chain Security",
+"scores": {
+"open_source_usability": 5,
+"ci_reliability": 4,
+"signal_quality": 3,
+"sarif_or_artifact_support": 4,
+"policy_control": 3,
+"runtime_cost": 4,
+"maintenance_health": 5,
+"gaming_relevance": 3
+},
+"evidence": "Useful as a maintenance and security-health signal when evaluating open-source scanner projects.",
+"decision_notes": "Best used as supporting evidence, not as the only adoption decision."
+}
+]
+}

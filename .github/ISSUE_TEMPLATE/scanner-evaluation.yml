@@ -1,0 +1,65 @@
+name: Scanner Evaluation
+description: Convert a threat-research intake into a scored scanner adoption decision.
+title: "[Scanner Evaluation]: "
+labels:
+- security-triage
+body:
+- type: markdown
+  attributes:
+    value: |
+      Use this form after a threat-research intake identifies a scanner, rule, or control worth evaluating.
+- type: input
+  id: scanner-name
+  attributes:
+    label: Scanner Name
+    description: Name of the scanner, rule engine, or security control.
+    placeholder: Example: Semgrep, Trivy, Gitleaks, OpenSSF Scorecard
+  validations:
+    required: true
+- type: dropdown
+  id: scanner-category
+  attributes:
+    label: Scanner Category
+    options:
+    - SAST
+    - Secrets
+    - Dependency / SCA
+    - Container
+    - IaC
+    - Runtime
+    - Supply Chain
+    - Workflow Security
+    - Other
+  validations:
+    required: true
+- type: textarea
+  id: evidence
+  attributes:
+    label: Evidence Source
+    description: Add links, local command output, SARIF support notes, CI behavior, or OpenSSF Scorecard evidence.
+    placeholder: Paste evidence here.
+  validations:
+    required: true
+- type: textarea
+  id: false-positive-risk
+  attributes:
+    label: False Positive Risk
+    description: Explain what the scanner might flag incorrectly and how the team will handle exceptions.
+  validations:
+    required: true
+- type: textarea
+  id: rollout-plan
+  attributes:
+    label: Rollout Plan
+    description: Start with warn-only mode unless the scanner is already proven and low-noise.
+    placeholder: Warn-only for 2 weeks, tune rules, then gate high-confidence findings.
+  validations:
+    required: true
+- type: input
+  id: owner
+  attributes:
+    label: Owner
+    description: Team or person accountable for tuning and maintaining this scanner.
+    placeholder: Example: Application Security
+  validations:
+    required: true
