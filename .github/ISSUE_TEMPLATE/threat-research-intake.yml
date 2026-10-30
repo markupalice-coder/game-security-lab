@@ -1,0 +1,143 @@
+name: Threat Research Intake
+description: Propose a new scanner, rule, threat, or control for the secure gaming release control plane.
+title: "[Threat Research]: "
+labels:
+  - security-triage
+  - research-intake
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to propose new security research inputs without changing production controls directly.
+
+        Do not paste real secrets, player personal data, exploit code for live systems, private keys, access tokens, or confidential vendor material.
+
+  - type: input
+    id: short-summary
+    attributes:
+      label: Short summary
+      description: State the proposed threat, scanner, rule, or control in one sentence.
+      placeholder: Example: Add a Semgrep rule for unsafe game economy debug grants.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proposal-type
+    attributes:
+      label: Proposal type
+      description: Choose the closest category.
+      options:
+        - New threat pattern
+        - New SAST rule
+        - New dependency or supply-chain check
+        - New container or Kubernetes check
+        - New IaC or policy-as-code check
+        - New runtime detection
+        - New compliance or evidence control
+        - Scanner replacement or scanner addition
+        - False-positive reduction
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected-assets
+    attributes:
+      label: Affected gaming-studio assets
+      description: Select every asset that could be affected.
+      options:
+        - label: GitHub Actions workflows
+        - label: Game API or backend service
+        - label: Unity or Unreal-style game client logic
+        - label: Container image
+        - label: Kubernetes deployment
+        - label: Infrastructure as Code
+        - label: Player telemetry
+        - label: Regional deployment evidence
+        - label: Secrets, signing keys, or cloud identity
+        - label: SBOM, provenance, or release artifact
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence-source
+    attributes:
+      label: Evidence source
+      description: Provide links, advisories, CVEs, scanner documentation, incident notes, internal observations, or reproducible reasoning.
+      placeholder: Include enough evidence for another reviewer to understand why this matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-detection
+    attributes:
+      label: Proposed detection or control
+      description: Describe the rule, scanner, query, workflow gate, policy, dashboard, or manual control.
+      placeholder: Example: Add a warn-only Semgrep rule under security/semgrep and run it in the semgrep workflow.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: regional-impact
+    attributes:
+      label: Regional or sovereignty impact
+      description: Connect the proposal to the Lab 93 deployment matrix.
+      options:
+        - No regional impact expected
+        - EU impact
+        - US impact
+        - APAC impact
+        - Multi-region impact
+        - Unknown and needs review
+    validations:
+      required: true
+
+  - type: dropdown
+    id: false-positive-risk
+    attributes:
+      label: False-positive risk
+      description: Estimate how noisy the proposal could be.
+      options:
+        - Low
+        - Medium
+        - High
+        - Unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: initial-rollout-mode
+    attributes:
+      label: Initial rollout mode
+      description: New detections should normally begin in a safe mode before becoming blocking.
+      options:
+        - Documentation only
+        - Local-only test
+        - CI warn-only
+        - CI blocking for critical only
+        - Full blocking gate
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollout-plan
+    attributes:
+      label: Rollout plan
+      description: Explain how this proposal should be tested, reviewed, measured, and promoted.
+      placeholder: Start warn-only for 7 days, collect false positives, tune rule, then propose enforcement in a follow-up PR.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety-checklist
+    attributes:
+      label: Safety checklist
+      description: Confirm the proposal is safe to review.
+      options:
+        - label: I did not include real secrets, tokens, private keys, or player personal data.
+          required: true
+        - label: I included enough evidence for an independent reviewer to evaluate the proposal.
+          required: true
+        - label: I considered false positives and developer experience.
+          required: true
+        - label: I included a safe rollout plan that does not immediately disrupt production.
+          required: true

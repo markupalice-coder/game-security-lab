@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+- name: Security Vulnerability Disclosure
+  url: https://github.com/markupalice-coder/game-security-lab/security/advisories/new
+  about: Use this private path for exploitable vulnerabilities or sensitive reports.
+- name: General Repository Discussion
+  url: https://github.com/markupalice-coder/game-security-lab/discussions
+  about: Use discussions for non-security questions or open-ended ideas.
