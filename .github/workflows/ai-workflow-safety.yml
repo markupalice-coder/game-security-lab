@@ -1,0 +1,34 @@
+name: ai-workflow-safety
+
+on:
+  pull_request:
+    paths:
+      - "security/ai-workflow-safety.md"
+      - "security/ai-agent-controls.yml"
+      - "security/test-fixtures/**"
+      - "policies/rego/ai-workflow-safety.rego"
+      - ".github/workflows/**"
+      - "scripts/validate-ai-workflow-safety.sh"
+
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-workflow-safety-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate AI-assisted workflow safety controls
+        run: ./scripts/validate-ai-workflow-safety.sh

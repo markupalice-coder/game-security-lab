@@ -1,0 +1,23 @@
+control_name: unsafe-ai-agent-example
+version: 1
+allowed_agent_write_access: true
+production_secret_access: true
+human_approval_required: false
+agent_self_approval_allowed: true
+agent_production_deploy_allowed: true
+agent_release_publish_allowed: true
+agent_workflow_edit_without_codeowner_allowed: true
+prompt_log_retention_days: 365
+required_codeowner_paths:
+- security/
+scanners_required:
+- semgrep
+prohibited_secret_classes:
+- production-cloud-credential
+untrusted_prompt_sources:
+- issue-body
+exception_requirements:
+owner_required: false
+expiry_required: false
+compensating_control_required: false
+security_review_required: false
