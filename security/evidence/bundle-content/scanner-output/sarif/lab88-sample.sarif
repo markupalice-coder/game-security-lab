@@ -1,0 +1,53 @@
+{
+"$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+"version": "2.1.0",
+"runs": [
+{
+"tool": {
+"driver": {
+"name": "lab88-sample-scanner",
+"informationUri": "https://example.com/internal-training-scanner",
+"rules": [
+{
+"id": "LAB88-RETENTION-CHECK",
+"name": "SARIF retention check",
+"shortDescription": {
+"text": "Training finding used to validate SARIF retention."
+},
+"fullDescription": {
+"text": "This synthetic finding proves that SARIF can be validated and retained as workflow evidence."
+},
+"help": {
+"text": "No remediation is required. This is a lab validation record."
+},
+"properties": {
+"security-severity": "1.0"
+}
+}
+]
+}
+},
+"results": [
+{
+"ruleId": "LAB88-RETENTION-CHECK",
+"level": "note",
+"message": {
+"text": "Lab 88 SARIF retention evidence is working."
+},
+"locations": [
+{
+"physicalLocation": {
+"artifactLocation": {
+"uri": "security/sarif-retention.md"
+},
+"region": {
+"startLine": 1
+}
+}
+}
+]
+}
+]
+}
+]
+}

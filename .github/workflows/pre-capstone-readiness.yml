@@ -1,0 +1,55 @@
+name: pre-capstone-readiness
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - "security/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+      - "src/**"
+
+  push:
+    branches: [ main ]
+    paths:
+      - "security/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+      - "src/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre-capstone-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/api/package-lock.json
+
+      - name: Run Lab 99 readiness review
+        run: ./scripts/pre-capstone-readiness.sh
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab99-pre-capstone-readiness
+          path: |
+            security/out/pre-capstone-readiness.md
+            security/out/pre-capstone-readiness.json
+            security/evidence-bundle.tgz
+          retention-days: 30
