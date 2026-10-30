@@ -18,3 +18,4 @@ terraform.rc
 # Lab 88 generated SARIF scanner outputs
 security/out/sarif/*.sarif
 !security/out/sarif/.gitkeep
+security/evidence-bundle.tgz
