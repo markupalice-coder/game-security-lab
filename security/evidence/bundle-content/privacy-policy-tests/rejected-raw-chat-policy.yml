@@ -1,0 +1,42 @@
+version: 1
+owner: analytics-team
+last_reviewed: "2026-06-10"
+
+telemetry:
+  purpose: "Unsafe example that should fail policy validation"
+
+  collect_only:
+    - event_type
+    - region
+    - platform
+    - client_version
+    - timestamp
+    - raw_chat
+
+  avoid:
+    - precise_location
+    - government_id
+    - payment_card
+    - full_ip_address
+    - email_address
+    - real_name
+    - anti_cheat_secret
+    - signing_key
+
+  retention_days:
+    raw: 90
+    aggregate: 365
+
+  defaults:
+    pseudonymize_player_id: false
+    precise_location_allowed: false
+    raw_chat_allowed: true
+    payment_data_allowed: false
+    secret_collection_allowed: false
+
+  review:
+    approval_required_for_new_fields: false
+    expiry_required_for_exceptions: false
+    owner_required_for_exceptions: true
+    privacy_review_required_for_confidential_or_restricted_data: false
+
