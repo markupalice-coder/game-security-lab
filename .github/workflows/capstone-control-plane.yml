@@ -1,0 +1,106 @@
+name: capstone-control-plane
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capstone-control-plane-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-audit:
+    name: repository-audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run capstone audit
+        run: ./scripts/capstone-audit.sh
+
+      - name: Upload capstone audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: capstone-audit-report
+          path: security/out/capstone-audit-report.md
+
+  local-quality:
+    name: local-quality
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run API tests
+        run: ./scripts/test-api.sh
+
+  sbom-and-dependency-evidence:
+    name: sbom-and-dependency-evidence
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate repository SBOM
+        run: ./scripts/generate-sbom.sh
+
+      - name: Scan SBOM with Grype
+        run: ./scripts/scan-sbom.sh || true
+
+      - name: Upload repository SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-sbom
+          path: security/out/repo-sbom.cdx.json
+
+      - name: Attest repository SBOM
+        uses: actions/attest@v4
+        with:
+          subject-path: security/out/repo-sbom.cdx.json
+
+  iac-and-policy-evidence:
+    name: iac-and-policy-evidence
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov IaC scan
+        run: ./scripts/checkov.sh || true
+
+  evidence-bundle:
+    name: evidence-bundle
+    runs-on: ubuntu-latest
+    needs:
+      - repository-audit
+      - local-quality
+      - sbom-and-dependency-evidence
+      - iac-and-policy-evidence
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate evidence bundle
+        run: ./scripts/evidence-bundle.sh
+
+      - name: Upload evidence outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: capstone-evidence
+          path: security/out/
