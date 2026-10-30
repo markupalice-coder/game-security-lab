@@ -68,6 +68,23 @@ copy_if_exists \
     "scripts/validate-player-data-classification.py" \
     "$BUNDLE_CONTENT/scripts/validate-player-data-classification.py"
 
+# Lab 92: Telemetry privacy evidence.
+copy_if_exists \
+    "security/telemetry-privacy-rules.yml" \
+    "$BUNDLE_CONTENT/telemetry-privacy-rules.yml"
+
+copy_if_exists \
+    "security/privacy-policy-tests" \
+    "$BUNDLE_CONTENT/privacy-policy-tests"
+
+copy_if_exists \
+    "policies/rego/telemetry-privacy.rego" \
+    "$BUNDLE_CONTENT/policies/rego/telemetry-privacy.rego"
+
+copy_if_exists \
+    "scripts/validate-telemetry-privacy.sh" \
+    "$BUNDLE_CONTENT/scripts/validate-telemetry-privacy.sh"
+
 # Collect workflow configurations.
 copy_if_exists \
     ".github/workflows/security-orchestrator.yml" \
@@ -85,6 +102,10 @@ copy_if_exists \
     ".github/workflows/player-data-classification.yml" \
     "$BUNDLE_CONTENT/.github/workflows/player-data-classification.yml"
 
+copy_if_exists \
+    ".github/workflows/telemetry-privacy.yml" \
+    "$BUNDLE_CONTENT/.github/workflows/telemetry-privacy.yml"
+
 # Collect Kubernetes configuration.
 copy_if_exists \
     "deploy/k8s/api.yaml" \
@@ -94,6 +115,8 @@ copy_if_exists \
 copy_if_exists \
     "scripts/evidence-bundle.sh" \
     "$BUNDLE_CONTENT/scripts/evidence-bundle.sh"
+
+echo "Collecting scanner outputs..."
 
 # Collect existing scanner outputs.
 if [[ -d "security/out" ]]; then
@@ -152,7 +175,10 @@ incident reviews, scanner rollout governance, and security control reviews.
 - Player data classification Markdown policy, if available
 - Player data classification JSON policy, if available
 - Player data classification validation script, if available
+- Telemetry privacy rules and rejected policy test fixtures, if available
+- Telemetry privacy Rego policy and validation script, if available
 - Security orchestrator and control review workflows, if available
+- Telemetry privacy workflow, if available
 - Kubernetes API deployment configuration, if available
 - Evidence generation script, if available
 - scanner-output/, including available SARIF and scanner reports

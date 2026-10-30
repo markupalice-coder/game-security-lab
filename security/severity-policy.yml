@@ -1,3 +1,4 @@
+
 schema_version: "1.0"
 version: 1
 
@@ -19,11 +20,13 @@ decision_tiers:
     normalized_severities:
       - critical
       - high
+
   warn:
     description: "The finding must be visible to developers but does not block by default."
     normalized_severities:
       - medium
       - low
+
   info:
     description: "The finding is recorded for evidence and trend analysis."
     normalized_severities:
