@@ -1,0 +1,33 @@
+name: player-data-classification
+
+on:
+  pull_request:
+    paths:
+      - "security/player-data-classification.md"
+      - "security/player-data-classification.json"
+      - "scripts/validate-player-data-classification.py"
+      - ".github/workflows/player-data-classification.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "security/player-data-classification.md"
+      - "security/player-data-classification.json"
+      - "scripts/validate-player-data-classification.py"
+      - ".github/workflows/player-data-classification.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate-player-data-classification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate player data classification
+        run: python3 scripts/validate-player-data-classification.py security/player-data-classification.json
