@@ -40,3 +40,8 @@ Future jobs must declare additional permissions only when the job's function req
 | Remediation Guidance | Markdown guide and GitHub Issue Form | Pull request and issue workflow | remediation-guide.md and security-remediation.yml |
 
 | Player Data Classification | Markdown, JSON, Python, GitHub Actions | Pull request | Policy file and workflow log |
+
+
+
+| Privacy Telemetry | OPA Conftest | Pull request | telemetry-privacy workflow logs |
+

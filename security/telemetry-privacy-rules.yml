@@ -1,0 +1,43 @@
+version: 1
+owner: security-and-privacy
+last_reviewed: "2026-06-10"
+
+telemetry:
+  purpose: "Gameplay reliability, aggregate service health, and privacy-preserving product analytics"
+
+  collect_only:
+    - event_type
+    - region
+    - platform
+    - client_version
+    - timestamp
+
+  avoid:
+    - raw_chat
+    - precise_location
+    - government_id
+    - payment_card
+    - full_ip_address
+    - email_address
+    - real_name
+    - device_contacts
+    - biometric_identifier
+    - anti_cheat_secret
+    - signing_key
+
+  retention_days:
+    raw: 30
+    aggregate: 365
+
+  defaults:
+    pseudonymize_player_id: true
+    precise_location_allowed: false
+    raw_chat_allowed: false
+    payment_data_allowed: false
+    secret_collection_allowed: false
+
+  review:
+    approval_required_for_new_fields: true
+    expiry_required_for_exceptions: true
+    owner_required_for_exceptions: true
+    privacy_review_required_for_confidential_or_restricted_data: true

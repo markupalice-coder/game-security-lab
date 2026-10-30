@@ -1,0 +1,37 @@
+name: telemetry-privacy
+
+on:
+  pull_request:
+    paths:
+      - "security/telemetry-privacy-rules.yml"
+      - "security/privacy-policy-tests/**"
+      - "policies/rego/telemetry-privacy.rego"
+      - "scripts/validate-telemetry-privacy.sh"
+
+  push:
+    branches: [ main ]
+    paths:
+      - "security/telemetry-privacy-rules.yml"
+      - "security/privacy-policy-tests/**"
+      - "policies/rego/telemetry-privacy.rego"
+      - "scripts/validate-telemetry-privacy.sh"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telemetry-privacy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate privacy-by-design telemetry rules
+        run: ./scripts/validate-telemetry-privacy.sh
