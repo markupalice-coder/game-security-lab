@@ -11,6 +11,7 @@ SCANNER_OUTPUT="$BUNDLE_CONTENT/scanner-output"
 BUNDLE_FILE="security/evidence-bundle.tgz"
 
 # Start with a clean evidence directory.
+mkdir -p "$EVIDENCE_ROOT"
 rm -rf "$BUNDLE_CONTENT"
 mkdir -p "$SCANNER_OUTPUT"
 
@@ -27,16 +28,34 @@ copy_if_exists() {
     fi
 }
 
-# Collect policy and retention documentation.
+echo "Collecting security control documentation..."
+
+# Lab 90 control documentation.
+copy_if_exists \
+    "security/control-register.md" \
+    "$BUNDLE_CONTENT/control-register.md"
+
+copy_if_exists \
+    "security/control-review-checklist.md" \
+    "$BUNDLE_CONTENT/control-review-checklist.md"
+
 copy_if_exists \
     "security/severity-policy.yml" \
-    "$BUNDLE_CONTENT/security/severity-policy.yml"
+    "$BUNDLE_CONTENT/severity-policy.yml"
+
+copy_if_exists \
+    "security/vulnerability-sla.yml" \
+    "$BUNDLE_CONTENT/vulnerability-sla.yml"
 
 copy_if_exists \
     "security/sarif-retention.md" \
-    "$BUNDLE_CONTENT/security/sarif-retention.md"
+    "$BUNDLE_CONTENT/sarif-retention.md"
 
-# Collect relevant workflow configuration.
+copy_if_exists \
+    "security/remediation-guide.md" \
+    "$BUNDLE_CONTENT/remediation-guide.md"
+
+# Collect workflow configurations.
 copy_if_exists \
     ".github/workflows/security-orchestrator.yml" \
     "$BUNDLE_CONTENT/.github/workflows/security-orchestrator.yml"
@@ -45,16 +64,32 @@ copy_if_exists \
     ".github/workflows/sarif-retention-audit.yml" \
     "$BUNDLE_CONTENT/.github/workflows/sarif-retention-audit.yml"
 
-# Collect the Kubernetes API manifest.
+copy_if_exists \
+    ".github/workflows/control-review.yml" \
+    "$BUNDLE_CONTENT/.github/workflows/control-review.yml"
+
+# Collect Kubernetes configuration.
 copy_if_exists \
     "deploy/k8s/api.yaml" \
     "$BUNDLE_CONTENT/deploy/k8s/api.yaml"
 
-# Collect SARIF reports when available.
+# Collect evidence-generation script.
+copy_if_exists \
+    "scripts/evidence-bundle.sh" \
+    "$BUNDLE_CONTENT/scripts/evidence-bundle.sh"
+
+# Collect existing scanner outputs.
+if [[ -d "security/out" ]]; then
+    cp -R security/out/. "$SCANNER_OUTPUT/"
+    echo "Collected scanner outputs from security/out"
+else
+    echo "No security/out directory found."
+fi
+
+# Collect SARIF reports separately when available.
 if [[ -d "security/out/sarif" ]]; then
     while IFS= read -r -d '' sarif_file; do
-        cp "$sarif_file" "$SCANNER_OUTPUT/"
-        echo "Collected SARIF report: $sarif_file"
+        echo "Found SARIF report: $sarif_file"
     done < <(
         find security/out/sarif \
             -maxdepth 1 \
@@ -63,26 +98,104 @@ if [[ -d "security/out/sarif" ]]; then
             -print0
     )
 else
-    echo "Skipped missing directory: security/out/sarif"
+    echo "No SARIF directory found."
 fi
 
-# Collect additional security reports if present.
+# Collect additional security reports.
 copy_if_exists \
     "security/reports" \
     "$BUNDLE_CONTENT/security/reports"
 
-# Include the evidence-bundle script itself.
-copy_if_exists \
-    "scripts/evidence-bundle.sh" \
-    "$BUNDLE_CONTENT/scripts/evidence-bundle.sh"
+# Record Git metadata.
+GIT_COMMIT="$(git rev-parse HEAD 2>/dev/null || echo "unknown")"
+GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")"
+GENERATED_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-# Create the compressed evidence archive.
-mkdir -p "$(dirname "$BUNDLE_FILE")"
+cat > "$BUNDLE_CONTENT/evidence-manifest.md" <<MANIFEST
+# Security Evidence Bundle Manifest
+
+Generated UTC: ${GENERATED_UTC}
+
+Git Commit: ${GIT_COMMIT}
+
+Git Branch: ${GIT_BRANCH}
+
+Repository Root: ${PROJECT_ROOT}
+
+## Purpose
+
+This bundle preserves security evidence for release reviews, audits,
+incident reviews, scanner rollout governance, and security control reviews.
+
+## Contents
+
+- Control register and control review checklist, if available
+- Severity policy and vulnerability SLA documentation, if available
+- SARIF retention and remediation documentation, if available
+- Security orchestrator and control review workflows, if available
+- Kubernetes API deployment configuration, if available
+- Evidence generation script, if available
+- scanner-output/, including available SARIF and scanner reports
+- security/reports/, if available
+- SHA256SUMS
+- evidence-manifest.md
+
+## Integrity Verification
+
+From the extracted bundle-content directory, run:
+
+\`sha256sum -c SHA256SUMS\`
+
+## Artifact Retention
+
+The CI workflow uploads the generated archive as a GitHub Actions
+security evidence artifact with a configured retention period of 30 days.
+MANIFEST
+
+# Generate checksums relative to bundle-content.
+(
+    cd "$BUNDLE_CONTENT"
+
+    if command -v sha256sum >/dev/null 2>&1; then
+        find . -type f ! -name "SHA256SUMS" -print0 \
+            | sort -z \
+            | xargs -0 -r sha256sum > SHA256SUMS
+    elif command -v shasum >/dev/null 2>&1; then
+        find . -type f ! -name "SHA256SUMS" -print0 \
+            | sort -z \
+            | xargs -0 -r shasum -a 256 > SHA256SUMS
+    else
+        echo "Error: neither sha256sum nor shasum is available." >&2
+        exit 1
+    fi
+
+    echo "Verifying evidence checksums..."
+
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum -c SHA256SUMS
+    else
+        shasum -a 256 -c SHA256SUMS
+    fi
+)
+
+# Create the generated archive.
+rm -f "$BUNDLE_FILE"
 
 tar -czf "$BUNDLE_FILE" \
     -C "$EVIDENCE_ROOT" \
     bundle-content
 
-echo "Security evidence bundle created: $BUNDLE_FILE"
+echo
+echo "Security evidence bundle created successfully:"
+ls -lh "$BUNDLE_FILE"
+
+echo
+echo "Evidence checksums:"
+cat "$BUNDLE_CONTENT/SHA256SUMS"
+
+echo
 echo "Archive contents:"
 tar -tzf "$BUNDLE_FILE"
+
+echo
+echo "Evidence bundle generation completed."

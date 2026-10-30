@@ -26,3 +26,16 @@ Future jobs must declare additional permissions only when the job's function req
 - Approved exceptions must use the labels `iac-exception`, `risk-accepted`, and `security-triage`.
 
 - Expired exceptions must be fixed, reopened, or formally re-approved.
+
+
+
+## Lab 89 Update
+
+
+
+| Control | Tool | Gate | Evidence |
+
+|---|---|---|---|
+
+| Remediation Guidance | Markdown guide and GitHub Issue Form | Pull request and issue workflow | remediation-guide.md and security-remediation.yml |
+
