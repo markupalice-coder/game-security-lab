@@ -1,0 +1,58 @@
+telemetry:
+  collect_only:
+    - session_id
+    - event_type
+    - event_timestamp
+    - timestamp
+    - client_version
+    - game_version
+    - platform
+    - region
+
+regions:
+  eu:
+    display_name: "European Union"
+    github_environment: "production-eu"
+    player_data_residency: "eu"
+    telemetry_residency: "eu"
+    incident_evidence_residency: "eu"
+    logs: "regional"
+    secrets_scope: "environment"
+    sbom_evidence: "regional"
+    raw_telemetry_retention_days: 30
+    aggregate_telemetry_retention_days: 365
+    deployment_approvers:
+      - "Privacy Owner"
+      - "Release Manager"
+    transfer_rule: "No personal data transfer outside the EU without documented legal basis and approval."
+
+  us:
+    display_name: "United States"
+    github_environment: "production-us"
+    player_data_residency: "us"
+    telemetry_residency: "us"
+    incident_evidence_residency: "us"
+    logs: "regional"
+    secrets_scope: "environment"
+    sbom_evidence: "regional"
+    raw_telemetry_retention_days: 30
+    aggregate_telemetry_retention_days: 365
+    deployment_approvers:
+      - "Release Manager"
+    transfer_rule: "No cross-region transfer without documented business purpose and security review."
+
+  apac:
+    display_name: "Asia-Pacific"
+    github_environment: "production-apac"
+    player_data_residency: "apac"
+    telemetry_residency: "apac"
+    incident_evidence_residency: "apac"
+    logs: "regional"
+    secrets_scope: "environment"
+    sbom_evidence: "regional"
+    raw_telemetry_retention_days: 30
+    aggregate_telemetry_retention_days: 365
+    deployment_approvers:
+      - "Regional Operations"
+      - "Release Manager"
+    transfer_rule: "Follow local retention and transfer requirements before sending data outside APAC."
