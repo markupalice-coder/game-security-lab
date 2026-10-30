@@ -1,0 +1,36 @@
+release:
+  name: "game-api-lab98-training-release"
+  owner: "security-team"
+  target_region: "eu"
+  environment: "production"
+  approval_status: "pending"
+
+regional_governance:
+  region_selected_and_approved: true
+  regional_data_owner: "platform-security"
+  player_data_class_reviewed: true
+  telemetry_fields_approved: true
+  data_retention_confirmed: true
+  cross_region_transfer_reviewed: true
+
+security_supply_chain:
+  secrets_regional_or_short_lived: true
+  sbom_generated_and_retained: true
+  image_signed_or_exception_approved: true
+  vulnerabilities_meet_sla: true
+  release_artifact_manifest_exists: true
+  evidence_bundle_exists: true
+
+rollback_incident:
+  rollback_commit: "a26d83619cc3e7aef98e2bed8c44421eeff37103"
+  image_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  incident_contact_path: "security-oncall@example.com"
+  rollback_rehearsal_known: true
+
+final_decision:
+  approved_for_sovereign_release: false
+  blocked_pending_remediation: true
+  approved_with_time_bound_exception: false
+  exception_expiry_date: ""
+  exception_owner: ""
+  compensating_control: ""
