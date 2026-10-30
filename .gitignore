@@ -1,7 +1,12 @@
-node_modules/
-/security/out/
 
-# OpenTofu local working files
+# Node.js dependencies
+node_modules/
+
+# Generated security output
+/security/out/
+security/evidence-bundle.tgz
+
+# OpenTofu / Terraform local working files
 **/.terraform/*
 *.tfstate
 *.tfstate.*
@@ -15,7 +20,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
 # Lab 88 generated SARIF scanner outputs
 security/out/sarif/*.sarif
 !security/out/sarif/.gitkeep
-security/evidence-bundle.tgz

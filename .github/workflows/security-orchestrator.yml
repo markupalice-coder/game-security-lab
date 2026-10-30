@@ -1,3 +1,4 @@
+
 name: security-orchestrator
 
 on:
@@ -15,41 +16,137 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  preflight:
+    name: Security preflight
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.preflight-result.outputs.result }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required security files
+        id: preflight-result
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            "security/severity-policy.yml"
+            "scripts/evidence-bundle.sh"
+            "scripts/validate-sarif-for-retention.py"
+            "scripts/control-review.sh"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "::error::Required security file is missing: $file"
+              exit 1
+            fi
+          done
+
+          echo "result=passed" >> "$GITHUB_OUTPUT"
+          echo "Security preflight passed."
+
   sast:
     name: Run reusable security scan
+    needs: preflight
     uses: ./.github/workflows/security-reusable.yml
     with:
       target-path: .
 
-  summary:
-    name: Write developer security summary
+  severity-policy:
+    name: Validate severity policy
     runs-on: ubuntu-latest
-    needs:
-      - sast
-    if: always()
-    permissions:
-      contents: read
-    steps:
-      - name: Write security summary
-        shell: bash
-        env:
-          SAST_RESULT: ${{ needs.sast.result }}
-        run: |
-          {
-            echo "## Security Summary"
-            echo "- Reusable SAST workflow result: ${SAST_RESULT}"
-            echo "- Evidence bundle: see the security evidence artifact."
-          } >> "$GITHUB_STEP_SUMMARY"
+    needs: preflight
+    outputs:
+      result: ${{ steps.policy-result.outputs.result }}
 
-  evidence:
-    name: Upload security evidence bundle
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install YAML dependency
+        run: python3 -m pip install PyYAML
+
+      - name: Validate severity policy YAML
+        id: policy-result
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+
+          import yaml
+
+          path = Path("security/severity-policy.yml")
+
+          try:
+              with path.open("r", encoding="utf-8") as file:
+                  policy = yaml.safe_load(file)
+          except (OSError, yaml.YAMLError) as exc:
+              print(f"Invalid severity policy YAML: {exc}", file=sys.stderr)
+              sys.exit(1)
+
+          if not isinstance(policy, dict):
+              sys.exit("Severity policy must be a YAML mapping.")
+
+          if not isinstance(policy.get("decision_tiers"), dict):
+              sys.exit("Severity policy is missing decision_tiers.")
+
+          if not isinstance(policy.get("scanner_aliases"), dict):
+              sys.exit("Severity policy is missing scanner_aliases.")
+
+          print("Severity policy YAML validation passed.")
+          PY
+
+          echo "result=passed" >> "$GITHUB_OUTPUT"
+
+  sarif-retention:
+    name: Validate SARIF retention evidence
     runs-on: ubuntu-latest
     needs:
+      - preflight
+    if: always() && needs.preflight.result == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate sample SARIF before retention
+        run: |
+          python3 scripts/validate-sarif-for-retention.py \
+            security/out/sarif/lab88-sample.sarif
+
+      - name: Upload raw SARIF retention evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab88-sarif-retention-${{ github.run_number }}-${{ github.sha }}
+          path: security/out/sarif/lab88-sample.sarif
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+
+  evidence-bundle:
+    name: Build and upload security evidence bundle
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
       - sast
-      - summary
-    if: always()
+      - severity-policy
+    if: always() && needs.preflight.result == 'success' && needs.severity-policy.result == 'success'
     permissions:
       contents: read
+      actions: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,3 +164,73 @@ jobs:
           retention-days: 30
           compression-level: 6
           include-hidden-files: false
+
+  control-review:
+    name: Run full security control review
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - evidence-bundle
+    if: always() && needs.preflight.result == 'success'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run control review
+        shell: bash
+        run: bash ./scripts/control-review.sh
+
+      - name: Upload control review report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-control-review-${{ github.run_number }}-${{ github.sha }}
+          path: security/out/control-review.md
+          if-no-files-found: error
+          retention-days: 30
+
+  security-summary:
+    name: Publish security summary
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - sast
+      - severity-policy
+      - sarif-retention
+      - evidence-bundle
+      - control-review
+    if: always()
+    permissions:
+      contents: read
+
+    steps:
+      - name: Write security summary
+        shell: bash
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          SAST_RESULT: ${{ needs.sast.result }}
+          POLICY_RESULT: ${{ needs.severity-policy.result }}
+          SARIF_RESULT: ${{ needs.sarif-retention.result }}
+          EVIDENCE_RESULT: ${{ needs.evidence-bundle.result }}
+          CONTROL_REVIEW_RESULT: ${{ needs.control-review.result }}
+        run: |
+          {
+            echo "## Full Security Control Review"
+            echo
+            echo "| Security Control | Result |"
+            echo "|---|---|"
+            echo "| Preflight | ${PREFLIGHT_RESULT} |"
+            echo "| Reusable SAST scan | ${SAST_RESULT} |"
+            echo "| Severity policy validation | ${POLICY_RESULT} |"
+            echo "| SARIF retention | ${SARIF_RESULT} |"
+            echo "| Evidence bundle | ${EVIDENCE_RESULT} |"
+            echo "| Control review | ${CONTROL_REVIEW_RESULT} |"
+            echo
+            echo "Review the uploaded security evidence artifacts before making a release decision."
+            echo
+            echo "**Release decision: REVIEW_REQUIRED**"
+            echo
+            echo "A human reviewer must inspect scanner output, exceptions, and release risk."
+          } >> "$GITHUB_STEP_SUMMARY"

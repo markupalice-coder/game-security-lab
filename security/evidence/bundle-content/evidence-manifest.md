@@ -25,4 +25,4 @@ This bundle preserves security evidence for release review, audit review, incide
 
 Lab 85 creates the local evidence bundle.
 
-Lab 86 will upload this bundle as retained CI evidence.
+Lab 86 uploads this bundle as retained CI evidence.
