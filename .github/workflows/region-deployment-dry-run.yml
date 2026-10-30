@@ -1,0 +1,58 @@
+name: region-deployment-dry-run
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why are you running the regional deployment dry-run?"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate-region-matrix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate sovereign deployment matrix
+        uses: docker://openpolicyagent/conftest:latest
+        with:
+          args: test --policy policies/rego security/sovereign-deployment-matrix.yml
+
+  regional-dry-run:
+    needs: validate-region-matrix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - region: eu
+            environment_name: production-eu
+            data_residency: eu
+            evidence_scope: regional
+          - region: us
+            environment_name: production-us
+            data_residency: us
+            evidence_scope: regional
+          - region: apac
+            environment_name: production-apac
+            data_residency: apac
+            evidence_scope: regional
+    environment: ${{ matrix.environment_name }}
+    steps:
+      - name: Show regional deployment intent
+        run: |
+          echo "Region: ${{ matrix.region }}"
+          echo "GitHub Environment: ${{ matrix.environment_name }}"
+          echo "Data Residency: ${{ matrix.data_residency }}"
+          echo "Evidence Scope: ${{ matrix.evidence_scope }}"
+          echo "Reason: ${{ inputs.reason }}"
+          echo "This is a dry-run. No cloud deployment occurred."
