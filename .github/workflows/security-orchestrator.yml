@@ -34,9 +34,12 @@ jobs:
 
           required_files=(
             "security/severity-policy.yml"
+            "security/player-data-classification.json"
+            "security/player-data-classification.md"
             "scripts/evidence-bundle.sh"
             "scripts/validate-sarif-for-retention.py"
             "scripts/control-review.sh"
+            "scripts/validate-player-data-classification.py"
           )
 
           for file in "${required_files[@]}"; do
@@ -110,6 +113,33 @@ jobs:
 
           echo "result=passed" >> "$GITHUB_OUTPUT"
 
+  player-data-classification:
+    name: Validate player data classification
+    runs-on: ubuntu-latest
+    needs: preflight
+    outputs:
+      result: ${{ steps.classification-result.outputs.result }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate player data classification
+        id: classification-result
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python scripts/validate-player-data-classification.py \
+            security/player-data-classification.json
+
+          echo "result=passed" >> "$GITHUB_OUTPUT"
+
   sarif-retention:
     name: Validate SARIF retention evidence
     runs-on: ubuntu-latest
@@ -142,7 +172,8 @@ jobs:
       - preflight
       - sast
       - severity-policy
-    if: always() && needs.preflight.result == 'success' && needs.severity-policy.result == 'success'
+      - player-data-classification
+    if: always() && needs.preflight.result == 'success' && needs.severity-policy.result == 'success' && needs.player-data-classification.result == 'success'
     permissions:
       contents: read
       actions: read
@@ -198,6 +229,7 @@ jobs:
       - preflight
       - sast
       - severity-policy
+      - player-data-classification
       - sarif-retention
       - evidence-bundle
       - control-review
@@ -212,6 +244,7 @@ jobs:
           PREFLIGHT_RESULT: ${{ needs.preflight.result }}
           SAST_RESULT: ${{ needs.sast.result }}
           POLICY_RESULT: ${{ needs.severity-policy.result }}
+          CLASSIFICATION_RESULT: ${{ needs.player-data-classification.result }}
           SARIF_RESULT: ${{ needs.sarif-retention.result }}
           EVIDENCE_RESULT: ${{ needs.evidence-bundle.result }}
           CONTROL_REVIEW_RESULT: ${{ needs.control-review.result }}
@@ -224,6 +257,7 @@ jobs:
             echo "| Preflight | ${PREFLIGHT_RESULT} |"
             echo "| Reusable SAST scan | ${SAST_RESULT} |"
             echo "| Severity policy validation | ${POLICY_RESULT} |"
+            echo "| Player data classification | ${CLASSIFICATION_RESULT} |"
             echo "| SARIF retention | ${SARIF_RESULT} |"
             echo "| Evidence bundle | ${EVIDENCE_RESULT} |"
             echo "| Control review | ${CONTROL_REVIEW_RESULT} |"

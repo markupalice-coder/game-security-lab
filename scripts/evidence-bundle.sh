@@ -30,7 +30,7 @@ copy_if_exists() {
 
 echo "Collecting security control documentation..."
 
-# Lab 90 control documentation.
+# Security control documentation.
 copy_if_exists \
     "security/control-register.md" \
     "$BUNDLE_CONTENT/control-register.md"
@@ -55,6 +55,19 @@ copy_if_exists \
     "security/remediation-guide.md" \
     "$BUNDLE_CONTENT/remediation-guide.md"
 
+# Lab 91: Player data classification evidence.
+copy_if_exists \
+    "security/player-data-classification.md" \
+    "$BUNDLE_CONTENT/player-data-classification.md"
+
+copy_if_exists \
+    "security/player-data-classification.json" \
+    "$BUNDLE_CONTENT/player-data-classification.json"
+
+copy_if_exists \
+    "scripts/validate-player-data-classification.py" \
+    "$BUNDLE_CONTENT/scripts/validate-player-data-classification.py"
+
 # Collect workflow configurations.
 copy_if_exists \
     ".github/workflows/security-orchestrator.yml" \
@@ -67,6 +80,10 @@ copy_if_exists \
 copy_if_exists \
     ".github/workflows/control-review.yml" \
     "$BUNDLE_CONTENT/.github/workflows/control-review.yml"
+
+copy_if_exists \
+    ".github/workflows/player-data-classification.yml" \
+    "$BUNDLE_CONTENT/.github/workflows/player-data-classification.yml"
 
 # Collect Kubernetes configuration.
 copy_if_exists \
@@ -132,6 +149,9 @@ incident reviews, scanner rollout governance, and security control reviews.
 - Control register and control review checklist, if available
 - Severity policy and vulnerability SLA documentation, if available
 - SARIF retention and remediation documentation, if available
+- Player data classification Markdown policy, if available
+- Player data classification JSON policy, if available
+- Player data classification validation script, if available
 - Security orchestrator and control review workflows, if available
 - Kubernetes API deployment configuration, if available
 - Evidence generation script, if available
