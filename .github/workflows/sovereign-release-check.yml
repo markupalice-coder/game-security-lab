@@ -1,0 +1,34 @@
+name: sovereign-release-check
+
+on:
+  pull_request:
+    paths:
+      - "security/sovereign-release-checklist.yml"
+      - "security/sovereign-release-checklist.md"
+      - "policies/rego/sovereign-release.rego"
+      - "scripts/validate-sovereign-release.sh"
+      - ".github/workflows/sovereign-release-check.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "security/sovereign-release-checklist.yml"
+      - "security/sovereign-release-checklist.md"
+      - "policies/rego/sovereign-release.rego"
+      - "scripts/validate-sovereign-release.sh"
+      - ".github/workflows/sovereign-release-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-sovereign-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate sovereign release checklist
+        run: ./scripts/validate-sovereign-release.sh
