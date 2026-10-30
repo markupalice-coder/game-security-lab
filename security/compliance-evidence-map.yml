@@ -1,0 +1,115 @@
+schema: "gaming-devsecops-compliance-evidence-map/v1"
+lab: 97
+title: "Build Compliance Evidence Map"
+status: "draft"
+owner: "security-team"
+review_frequency: "per release or monthly"
+purpose: "Map compliance expectations to engineering evidence produced by the DevSecOps control plane."
+
+expectations:
+  - id: secure-development
+    expectation: "Secure development"
+    plain_language_goal: "Changes should be reviewed, tested, scanned, and protected before merge."
+    evidence:
+      - path: "security/control-register.md"
+        type: "control-register"
+        status: "implemented"
+      - path: ".github/CODEOWNERS"
+        type: "review-ownership"
+        status: "implemented-or-planned"
+      - path: ".github/workflows/codeql.yml"
+        type: "sast"
+        status: "implemented-or-planned"
+      - path: ".github/workflows/semgrep.yml"
+        type: "sast"
+        status: "implemented-or-planned"
+
+  - id: data-protection-by-design
+    expectation: "Data protection by design"
+    plain_language_goal: "Player data, telemetry, crash reports, moderation signals, and AI workflow logs should be minimized, classified, and retained only as needed."
+    evidence:
+      - path: "security/data-classification.md"
+        type: "data-governance"
+        status: "implemented-or-planned"
+      - path: "security/telemetry-minimization.md"
+        type: "privacy-engineering"
+        status: "implemented-or-planned"
+      - path: "security/sarif-retention-strategy.md"
+        type: "retention-strategy"
+        status: "implemented-or-planned"
+
+  - id: operational-resilience
+    expectation: "Operational resilience"
+    plain_language_goal: "The studio should be able to detect failure, preserve evidence, and recover releases without improvising."
+    evidence:
+      - path: "scripts/test-api.sh"
+        type: "test-automation"
+        status: "implemented"
+      - path: "scripts/evidence-bundle.sh"
+        type: "evidence-packaging"
+        status: "implemented"
+      - path: "security/incident-runbook.md"
+        type: "incident-readiness"
+        status: "implemented-or-planned"
+      - path: "security/runtime-detection-design.md"
+        type: "runtime-detection"
+        status: "implemented-or-planned"
+
+  - id: supply-chain-control
+    expectation: "Supply-chain control"
+    plain_language_goal: "The studio should know what it builds, what dependencies it uses, and whether release artifacts can be traced back to source."
+    evidence:
+      - path: "security/out/repo-sbom.cdx.json"
+        type: "sbom"
+        status: "generated-or-planned"
+      - path: "security/out/game-api.spdx.json"
+        type: "container-sbom"
+        status: "generated-or-planned"
+      - path: "security/cosign-design.md"
+        type: "artifact-signing-design"
+        status: "implemented-or-planned"
+      - path: "security/slsa-design.md"
+        type: "provenance-design"
+        status: "implemented-or-planned"
+      - path: ".github/workflows/dependency-review.yml"
+        type: "dependency-review"
+        status: "implemented-or-planned"
+
+  - id: third-party-risk
+    expectation: "Third-party risk"
+    plain_language_goal: "External packages, scanners, actions, and dependencies should be evaluated before becoming part of the release process."
+    evidence:
+      - path: "security/scanner-evaluation-scorecard.md"
+        type: "tool-evaluation"
+        status: "implemented"
+      - path: "security/license-policy.yml"
+        type: "license-governance"
+        status: "implemented-or-planned"
+      - path: ".github/dependabot.yml"
+        type: "dependency-update-automation"
+        status: "implemented-or-planned"
+
+  - id: incident-readiness
+    expectation: "Incident readiness"
+    plain_language_goal: "When something goes wrong, the team should know how to triage, rotate secrets, preserve evidence, and recover."
+    evidence:
+      - path: "security/secret-rotation-runbook.md"
+        type: "secret-incident-response"
+        status: "implemented-or-planned"
+      - path: "security/vulnerability-sla.yml"
+        type: "remediation-sla"
+        status: "implemented-or-planned"
+      - path: ".github/ISSUE_TEMPLATE/security-risk-acceptance.md"
+        type: "risk-acceptance"
+        status: "implemented-or-planned"
+
+  - id: ai-workflow-governance
+    expectation: "AI-assisted workflow governance"
+    plain_language_goal: "AI tools should not receive secrets, bypass reviews, or turn untrusted user text into privileged repository changes."
+    evidence:
+      - path: "security/ai-workflow-safety.md"
+        type: "ai-workflow-policy"
+        status: "implemented"
+      - path: "security/workflow-threat-model.md"
+        type: "threat-model"
+        status: "implemented-or-planned"
