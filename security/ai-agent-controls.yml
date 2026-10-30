@@ -1,0 +1,42 @@
+control_name: ai-assisted-workflow-safety
+version: 1
+allowed_agent_write_access: false
+production_secret_access: false
+human_approval_required: true
+agent_self_approval_allowed: false
+agent_production_deploy_allowed: false
+agent_release_publish_allowed: false
+agent_workflow_edit_without_codeowner_allowed: false
+prompt_log_retention_days: 30
+required_codeowner_paths:
+- .github/workflows/
+- security/
+- policies/
+- infra/
+scanners_required:
+- codeql
+- semgrep
+- gitleaks
+- osv
+- dependency-review
+- container-scan
+- iac-scan
+prohibited_secret_classes:
+- production-cloud-credential
+- game-api-signing-key
+- anti-cheat-secret
+- store-upload-token
+- payment-adjacent-token
+- player-data-export-token
+untrusted_prompt_sources:
+- issue-body
+- pull-request-body
+- pull-request-review-comment
+- discussion-comment
+- commit-message
+- external-ticket-text
+exception_requirements:
+owner_required: true
+expiry_required: true
+compensating_control_required: true
+security_review_required: true
